@@ -1,12 +1,20 @@
 const Note = require('../models/Note')
 const {errorMessage, successMessage} = require('../imports/error_message')
-const {noteValidation} = require('../imports/validation')
+const {noteValidation, noteUpdateValidation} = require('../imports/validation');
 
-const noteGet =  (req, res) => {
+const noteIndex =  (req, res) => {
     var noteId = req.params.id;
-    var user = req.user;
-    console.log(user)
-    res.send(`${noteId}  ${user._id}`)
+    var userId = req.user._id;
+
+    Note.find({userId: userId})
+        .then((data) => {
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            res.status(400).json(err)
+        });
+
+    // res.send(`${noteId}  ${user._id}`)
 }
 
 const noteCreate = (req, res) => {
@@ -15,7 +23,6 @@ const noteCreate = (req, res) => {
 
     
     // validation
-    console.log(req);
     let error = noteValidation(data);
     if (error) {
         return res.status(400).json(error);
@@ -29,15 +36,64 @@ const noteCreate = (req, res) => {
     });
 
     note.save()
-        .then((result) => {
+        .then((data) => {
             res.status(200).json(successMessage("Notes saved"));
         })
         .catch((err) => {
             res.status(400).send(err);
+        });
+}
+
+const noteDelete = async (req, res) =>{
+    var noteId = req.params.id;
+    var userId = req.user._id;
+
+    Note.findOneAndDelete({_id:noteId, userId: userId})
+        .then((data) => {
+            res.status(200).json(successMessage("Note deleted sucessfully"));
         })
+        .catch((err) => {
+            res.status(400).json(errorMessage("You are an imposter"));
+        });
+}
+
+const noteGet = async (req, res) => {
+    var noteId = req.params.id;
+    var userId = req.user._id;
+
+    Note.findOne({_id: noteId, userId: userId})
+        .then((data) => {
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            res.status(400).json(errorMessage("userId not correct"));
+        });
+}
+
+const noteUpdate = async (req, res) => {
+    var noteId = req.params.id
+    var userId = req.user._id;
+    var data = req.body;
+
+    // validation
+    let error = noteUpdateValidation(data);
+    if (error) {
+        return res.status(400).json(error);
+    }
+    
+    Note.findOneAndUpdate({_id: noteId, userId: userId}, data, {upsert: true})
+        .then((data) => {
+            res.status(400).json(successMessage("Updated"));
+        })
+        .catch((err) => {
+            res.status(400).json(errorMessage("You are an imposter"));
+        });
 }
 
 module.exports = {
+    noteIndex,
     noteGet,
-    noteCreate
+    noteCreate,
+    noteDelete,
+    noteUpdate
 }

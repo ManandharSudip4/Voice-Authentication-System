@@ -62,9 +62,26 @@ const noteValidation = (data) => {
     return sendError(error);
 }
 
+const noteUpdateValidation = (data) => {
+    const schema = Joi.object({
+        title: Joi.string()
+            .min(1)
+            .max(255),
+        body: Joi.string()
+            .max(1000),
+        important: Joi.boolean(),
+    });
+
+    const {error} = schema.validate(data, {
+        abortEarly: false
+    });
+
+    return sendError(error);
+}
 
 module.exports = {
     registerValidation,
     loginValidation,
-    noteValidation
+    noteValidation,
+    noteUpdateValidation
 }

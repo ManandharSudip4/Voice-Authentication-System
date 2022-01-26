@@ -12,5 +12,8 @@ router.post('/login', userController.userLogin);
 router.get('/test', userController.test);
 
 router.post('/notes/create', verify, noteController.noteCreate);
+router.get('/notes', verify, noteController.noteIndex);
+router.put('/notes/:id', verify, noteController.noteUpdate);
 router.get('/notes/:id', verify, noteController.noteGet);
+router.delete('/notes/:id', verify, noteController.noteDelete)
 module.exports = router;
