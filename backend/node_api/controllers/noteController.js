@@ -1,23 +1,22 @@
-const Note = require('../models/Note')
-const {errorMessage, successMessage} = require('../imports/error_message')
+const Note = require('../models/Note');
 const {noteValidation, noteUpdateValidation} = require('../imports/validation');
+const response =  require('../imports/response');
 
-const noteIndex =  (req, res) => {
-    var noteId = req.params.id;
+const noteIndex = async (req, res) => {
     var userId = req.user._id;
 
     Note.find({userId: userId})
         .then((data) => {
-            res.status(200).json(data);
+            return response.response(res, response.status_ok, response.code_ok, null, "success", data);
         })
         .catch((err) => {
-            res.status(400).json(err)
+            return response.response(res, response.status_fail, response.code_failed, err, null, null);
         });
 
     // res.send(`${noteId}  ${user._id}`)
 }
 
-const noteCreate = (req, res) => {
+const noteCreate = async (req, res) => {
     var data = req.body;
     var userId = req.user._id;
 
@@ -25,7 +24,7 @@ const noteCreate = (req, res) => {
     // validation
     let error = noteValidation(data);
     if (error) {
-        return res.status(400).json(error);
+        return response.response(res, response.status_fail, response.code_failed, error, null, null);
     }
 
     const note = new Note({
@@ -37,10 +36,10 @@ const noteCreate = (req, res) => {
 
     note.save()
         .then((data) => {
-            res.status(200).json(successMessage("Notes saved"));
+            return response.response(res, response.status_ok, response.code_ok, null, "Note saved sucessfully", null);
         })
         .catch((err) => {
-            res.status(400).send(err);
+            return response.response(res, response.status_fail, response.code_failed, err, null, null);
         });
 }
 
@@ -50,10 +49,10 @@ const noteDelete = async (req, res) =>{
 
     Note.findOneAndDelete({_id:noteId, userId: userId})
         .then((data) => {
-            res.status(200).json(successMessage("Note deleted sucessfully"));
+            return response.response(res, response.status_ok, response.code_ok, null, "Note deleted sucessfully", null);
         })
         .catch((err) => {
-            res.status(400).json(errorMessage("You are an imposter"));
+            return response.response(res, response.status_fail, response.code_failed, "You are an imposter", null, null);
         });
 }
 
@@ -63,10 +62,10 @@ const noteGet = async (req, res) => {
 
     Note.findOne({_id: noteId, userId: userId})
         .then((data) => {
-            res.status(200).json(data);
+            return response.response(res, response.status_ok, response.code_ok, null, "success", data);
         })
         .catch((err) => {
-            res.status(400).json(errorMessage("userId not correct"));
+            return response.response(res, response.status_fail, response.code_failed, "noteId is not correct", null, null);
         });
 }
 
@@ -78,15 +77,15 @@ const noteUpdate = async (req, res) => {
     // validation
     let error = noteUpdateValidation(data);
     if (error) {
-        return res.status(400).json(error);
+        return response.response(res, response.status_fail, response.code_failed, error, null, null);
     }
     
     Note.findOneAndUpdate({_id: noteId, userId: userId}, data, {upsert: true})
         .then((data) => {
-            res.status(400).json(successMessage("Updated"));
+            return response.response(res, response.status_ok, response.code_ok, null, "Note updated successfully", null);
         })
         .catch((err) => {
-            res.status(400).json(errorMessage("You are an imposter"));
+            return response.response(res, response.status_fail, response.code_failed, "You are an imposter", null);
         });
 }
 
