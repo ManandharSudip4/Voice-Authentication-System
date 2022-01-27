@@ -1,7 +1,0 @@
-{
-    "uploadRegisterDir": "/public/assets/uploads/register",
-    "uploadLoginDir": "/public/assets/uploads/login",
-    "db_connect": "mongodb+srv://lethal:passwaitforitword@cluster0.jnaae.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-    "db_name": "",
-    "token_key": "thatsWhatSheSaid@Order66"
-}
