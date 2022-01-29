@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+audioFiles
+d1.csv
+d2.csv
+dataset.csv
+
+backend/test.py
