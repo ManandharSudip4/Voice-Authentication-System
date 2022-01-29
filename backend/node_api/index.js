@@ -3,23 +3,24 @@ const apiRoute = require('./routes/api');
 const cors = require('cors')
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const response = require('./imports/response');
 
 // environment
-const config = require('./config.json')
+const config = require('./config.json');
 
 global.__basedir = __dirname;
 
-const port = 8000;
+const ip_addr = config.ip_addr;
+const port = config.port;
 const app = express();
 
 // connect to mongodb
-const { MongoClient } = require('mongodb');
 const dbUrl = config.db_connect;
 mongoose.connect(dbUrl, {useNewUrlParser: true, useUnifiedTopology: true})
   .then((result) => {
     console.log("Connected to database");
-    app.listen(port, () => {
-        console.log(`Listening at port: ${port}`)
+    app.listen(port, ip_addr,() => {
+        console.log(`Listening at: ${ip_addr}:${port}`)
     })
   })
   .catch((err) => console.log(err));
@@ -34,5 +35,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/user", apiRoute);
 
 app.use((req, res) => {
-    res.status(404).send("Not found")
+    response.response(res, response.status_fail, response.code_not_found, "Not found", null, null);
 })

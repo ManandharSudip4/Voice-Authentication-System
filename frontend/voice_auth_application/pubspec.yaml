@@ -38,6 +38,7 @@ dependencies:
   record: ^3.0.2
   path_provider: ^2.0.8
   permission_handler: ^8.3.0
+  http: ^0.13.4
 
 dev_dependencies:
   flutter_test:

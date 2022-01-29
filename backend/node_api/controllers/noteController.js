@@ -36,7 +36,7 @@ const noteCreate = async (req, res) => {
 
     note.save()
         .then((data) => {
-            return response.response(res, response.status_ok, response.code_ok, null, "Note saved sucessfully", null);
+            return response.response(res, response.status_ok, response.code_ok, null, "success", null);
         })
         .catch((err) => {
             return response.response(res, response.status_fail, response.code_failed, err, null, null);
@@ -49,7 +49,7 @@ const noteDelete = async (req, res) =>{
 
     Note.findOneAndDelete({_id:noteId, userId: userId})
         .then((data) => {
-            return response.response(res, response.status_ok, response.code_ok, null, "Note deleted sucessfully", null);
+            return response.response(res, response.status_ok, response.code_ok, null, "success", null);
         })
         .catch((err) => {
             return response.response(res, response.status_fail, response.code_failed, "You are an imposter", null, null);
@@ -82,7 +82,7 @@ const noteUpdate = async (req, res) => {
     
     Note.findOneAndUpdate({_id: noteId, userId: userId}, data, {upsert: true})
         .then((data) => {
-            return response.response(res, response.status_ok, response.code_ok, null, "Note updated successfully", null);
+            return response.response(res, response.status_ok, response.code_ok, null, "success", null);
         })
         .catch((err) => {
             return response.response(res, response.status_fail, response.code_failed, "You are an imposter", null);

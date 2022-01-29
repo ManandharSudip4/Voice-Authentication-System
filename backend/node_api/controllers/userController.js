@@ -48,7 +48,7 @@ const userRegister = async (req, res) => {
         .then((result) => {
             // create jwt token
             var token = jwt.sign({ _id: user._id }, config.token_key);
-            return response.responseToken(res, response.status_ok, response.code_ok, null, "Successfully Registered", null, token);
+            return response.responseToken(res, response.status_ok, response.code_ok, null, "success", null, token);
             // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
         })
         .catch((err) => {
@@ -99,9 +99,23 @@ const userLogin = async (req, res) => {
         // create jwt token and assign
         var token = jwt.sign({ _id: user._id }, config.token_key);
 
-        return response.responseToken(res, response.status_ok, response.code_ok, null, "Login Successful", null, token);
+        return response.responseToken(res, response.status_ok, response.code_ok, null, "success", null, token);
     });
 
+}
+
+const getUsers = async (req, res) => {
+    var usersProjection = {
+        _id: 1,
+        userName: 1
+    }
+    User.find({}, usersProjection)
+        .then((data) => {
+            return response.response(res, response.status_ok, response.code_ok, null, "success", data);
+        })
+        .catch((err) => {
+            return response.response(res, response.status_fail, response.code_failed, err, null, null);
+        });
 }
 
 
@@ -123,6 +137,7 @@ const test = async (req, res) => {
 module.exports = {
     userRegister,
     userLogin,
+    getUsers,
     test
 }
 // const upload =  async 

@@ -9,6 +9,7 @@ router.get('/', (req, res) =>{
 });
 router.post('/register', userController.userRegister);
 router.post('/login', userController.userLogin);
+router.get('/users', userController.getUsers);
 router.get('/test', userController.test);
 
 router.post('/notes/create', verify, noteController.noteCreate);
