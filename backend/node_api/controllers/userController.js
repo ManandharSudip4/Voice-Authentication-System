@@ -8,9 +8,88 @@ const response = require('../imports/response');
 // environment
 const config = require('../config.json');
 
+const mutler = require('multer');
+const fs = require('fs');
+const upload = mutler({dest: config.uploadRegisterDir})
 
+const userRegisternew = async (req, res) => {
+    console.log("Received file " + req.file.originalname);
+    var fileName = req.file.originalname;
+    var audioFile = config.uploadRegisterDir + '/'+ fileName;
+    var data = req.body;
+    var src = fs.createReadStream(req.file.path);
+    var dest = fs.createWriteStream(audioFile);
+    src.pipe(dest);
+    src.on('end', function() {
+        fs.unlinkSync(req.file.path);
+        // create new user
+	const user = new User({
+	    userName: data.userName,
+		audioFile: fileName //audioFile
+	    });
+
+	    user.save()
+		.then((result) => {
+		    console.log("saving user");
+		    // create jwt token
+		    var token = jwt.sign({ _id: user._id }, config.token_key);
+		    return response.responseToken(res, response.status_ok, response.code_ok, null, "success", null, token);
+		    // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
+		})
+		.catch((err) => {
+		    return response.response(res, response.status_fail, response.code_failed, err, null, null);
+	    })
+    });
+    src.on('error', function(err) { res.json('Something went wrong!'); }); 
+    console.log(req.body);
+}
+
+const userLoginnew = async (req, res) => {
+    console.log("Received file " + req.file.originalname);
+    var fileName = req.file.originalname;
+    var audioFile = config.uploadLoginDir + '/'+ fileName;
+    var data = req.body;
+    var src = fs.createReadStream(req.file.path);
+    var dest = fs.createWriteStream(audioFile);
+    src.pipe(dest);
+    src.on('end',  async () => {
+        fs.unlinkSync(req.file.path);
+	
+        var data = req.body;
+        // let audioFile = req.file.originalname;
+
+        // validation
+        let error = loginValidation(data);
+        if (error) {
+            return response.response(res, response.status_fail, response.code_failed, error['userName'], null, null);
+        }
+
+        // check user
+        var user = await User.findOne({ userName: data.userName });
+        if (!user) return response.response(res, response.status_fail, response.code_failed, "UserName not found", null, null);
+
+        // interaction with python module
+        const pythonProcess = spwan('python', ['login.py', user.userName, user.audioFile])
+        await pythonProcess.stdout.on('data', (data) => {
+            pythonData =  data.toString();
+            pythonData = JSON.parse(pythonData);
+            // console.log(pythonData)
+        });
+
+        await pythonProcess.on('close', (code) => {
+            console.log(`Child process closs all stdio with code: ${code}`)
+            if (!pythonData.isUser) return response.response(res, response.status_fail, response.code_failed, "You are an imposter", null, null);
+            // create jwt token and assign
+            var token = jwt.sign({ _id: user._id }, config.token_key);
+
+            return response.responseToken(res, response.status_ok, response.code_ok, null, "success", null, token);
+        });
+    });
+    src.on('error', function(err) { res.json('Something went wrong!'); }); 
+    console.log(req.body);
+}
 const userRegister = async (req, res) => {
-
+    console.log("Registering");
     try {
         await uploadFile.registerUploadFileMiddleware(req, res);
         // fileName = uploadFile.getFileName();
@@ -22,6 +101,7 @@ const userRegister = async (req, res) => {
     } catch (err) {
         return response.response(res, response.status_fail, response.code_error, err, null, null);
     }
+    console.log("file uploaded");
     let data = req.body;
     let audioFile = req.file.originalname;
 
@@ -46,6 +126,7 @@ const userRegister = async (req, res) => {
 
     user.save()
         .then((result) => {
+	    console.log("saving user");
             // create jwt token
             var token = jwt.sign({ _id: user._id }, config.token_key);
             return response.responseToken(res, response.status_ok, response.code_ok, null, "success", null, token);
@@ -61,6 +142,7 @@ const userRegister = async (req, res) => {
 }
 
 const userLogin = async (req, res) => {
+    console.log('logging in');
     try {
         await uploadFile.loginUploadFileMiddleware(req, res);
         audioFile = uploadFile.getFileName();
@@ -105,6 +187,7 @@ const userLogin = async (req, res) => {
 }
 
 const getUsers = async (req, res) => {
+    console.log('Getting all users');
     var usersProjection = {
         _id: 1,
         userName: 1
@@ -138,6 +221,8 @@ module.exports = {
     userRegister,
     userLogin,
     getUsers,
+    userRegisternew,
+    userLoginnew,
     test
 }
 // const upload =  async 

@@ -2,11 +2,14 @@ const router = require("express").Router();
 const userController = require('../controllers/userController');
 const noteController = require('../controllers/noteController')
 const verify = require('../middleware/verifyjwt');
+const config = require('../config.json');
+const mutler = require('multer');
+const fs = require('fs');
+const uploadRegister = mutler({ dest: config.uploadRegisterDir});
+const uploadLogin = mutler({ dest: config.uploadLoginDir});
 
-router.get('/', (req, res) =>{
-    // console.log(req.body);
-    res.send('somethning');
-});
+router.post('/registerUser', uploadRegister.single("audioFile"), userController.userRegisternew);
+router.post('/loginUser', uploadLogin.single("audioFile"), userController.userLoginnew);
 router.post('/register', userController.userRegister);
 router.post('/login', userController.userLogin);
 router.get('/users', userController.getUsers);

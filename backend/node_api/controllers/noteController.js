@@ -3,6 +3,7 @@ const {noteValidation, noteUpdateValidation} = require('../imports/validation');
 const response =  require('../imports/response');
 
 const noteIndex = async (req, res) => {
+    console.log("Getting all notes");
     var userId = req.user._id;
 
     Note.find({userId: userId})
@@ -17,10 +18,10 @@ const noteIndex = async (req, res) => {
 }
 
 const noteCreate = async (req, res) => {
+    console.log("Creating notes");
     var data = req.body;
     var userId = req.user._id;
 
-    
     // validation
     let error = noteValidation(data);
     if (error) {
@@ -44,6 +45,7 @@ const noteCreate = async (req, res) => {
 }
 
 const noteDelete = async (req, res) =>{
+    console.log("Deleting notes");
     var noteId = req.params.id;
     var userId = req.user._id;
 
@@ -57,6 +59,7 @@ const noteDelete = async (req, res) =>{
 }
 
 const noteGet = async (req, res) => {
+    console.log('Getting notes');
     var noteId = req.params.id;
     var userId = req.user._id;
 
@@ -70,6 +73,7 @@ const noteGet = async (req, res) => {
 }
 
 const noteUpdate = async (req, res) => {
+    console.log('Getting update');
     var noteId = req.params.id
     var userId = req.user._id;
     var data = req.body;

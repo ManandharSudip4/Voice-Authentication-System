@@ -14,6 +14,10 @@ const ip_addr = config.ip_addr;
 const port = config.port;
 const app = express();
 
+const mutler = require('multer');
+const fs = require('fs');
+const upload = mutler({ dest: 'public/assets/uploads/'})
+
 // connect to mongodb
 const dbUrl = config.db_connect;
 mongoose.connect(dbUrl, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -33,6 +37,19 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/user", apiRoute);
+
+app.post('/upload', upload.single("audioFile"), function (req,res) {
+    console.log("Received file " + req.file.originalname);
+    var src = fs.createReadStream(req.file.path);
+    var dest = fs.createWriteStream('public/assets/uploads/' + req.file.originalname);
+    src.pipe(dest);
+    src.on('end', function() {
+    	fs.unlinkSync(req.file.path);
+    	res.json('OK: received ' + req.file.originalname);
+    });
+    src.on('error', function(err) { res.json('Something went wrong!'); }); 
+    console.log(req.body);
+ })
 
 app.use((req, res) => {
     response.response(res, response.status_fail, response.code_not_found, "Not found", null, null);

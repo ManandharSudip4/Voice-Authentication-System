@@ -61,5 +61,4 @@ let loginUploadFileMiddleware = util.promisify(loginUploadFile);
 const getFileName = () => {
     return fileName
 }
-
 module.exports = {registerUploadFileMiddleware, loginUploadFileMiddleware,getFileName}; 

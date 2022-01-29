@@ -5,7 +5,7 @@ import time
 
 user = sys.argv[1]
 file = sys.argv[2]
-isUser = True
+isUser = False
 if (user == "lethal" or user == "lethal12"):
     isUser = True
 
