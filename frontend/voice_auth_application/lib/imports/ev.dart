@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-const String ipAddr = "http://192.168.1.77:8000";
+const String ipAddr = "http://192.168.254.17:8000";
 Color backgroundColor=  const Color(0xff3E4768);
 Color elevatedButtonColor = const Color(0xff1569C7);
 Color cardColor = const Color(0xffEBF4FA);

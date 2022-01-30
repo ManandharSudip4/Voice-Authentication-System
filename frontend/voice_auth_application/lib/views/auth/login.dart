@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
 import 'package:voice_auth_app/imports/ev.dart';
+import 'package:voice_auth_app/imports/loading.dart';
+import 'package:voice_auth_app/models/response.dart';
 import 'package:voice_auth_app/utils/recorder.dart';
 import 'package:voice_auth_app/views/notes.dart';
 import 'package:voice_auth_app/views/templates/music_animation.dart';
@@ -17,11 +19,11 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   
-  String error = "";
+  String? error;
   bool isRecording = false;
   Recorder recorder = Recorder();
   bool doneRecording = false;
-
+  bool postRequest = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +33,7 @@ class _LoginViewState extends State<LoginView> {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: SafeArea(
-          child: login(),
+          child: postRequest ? Loading() : login(),
         ),
       ),
     );
@@ -52,6 +54,14 @@ class _LoginViewState extends State<LoginView> {
               )
             ),
             const SizedBox(height: 20,),
+            Text(
+              (error != null) ? '$error': '',
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 20
+              ),
+            ),
+            const SizedBox(height: 10,),
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: Text(
@@ -96,19 +106,27 @@ class _LoginViewState extends State<LoginView> {
                       style: ElevatedButton.styleFrom(
                         primary: elevatedButtonColor,
                         minimumSize: const Size(40, 45),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
                       ),
                       onPressed: () async{
-                        await user_controller.login(widget.uname, widget.uname);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotesView()),
-                        );
+                        setState(() {
+                          postRequest = true;
+                        });
+                        ResponseUsers res = await user_controller.login(widget.uname, widget.uname);
+                        if (res.error == null){
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotesView()),
+                            (route) => false
+                          );
+                        }else{
+                          setState(() {
+                            error = res.error;
+                            postRequest = false;
+                          });
+                        }
                       }, 
-                      child: const Icon(
-                        Icons.arrow_right_alt_sharp,
-                        size: 25,
-                      )
+                      child: const Text("Done")
                     ),
                   ),
                 ],
@@ -126,6 +144,7 @@ class _LoginViewState extends State<LoginView> {
                     await recorder.stopRecord();
                   }
                   setState(() {
+                    error = null;
                     isRecording = !isRecording;
                     doneRecording = false;
                     if (!isRecording) doneRecording = true;

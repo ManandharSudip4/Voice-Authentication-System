@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
 import 'package:voice_auth_app/imports/ev.dart';
+import 'package:voice_auth_app/imports/loading.dart';
 import 'package:voice_auth_app/models/user.dart';
 import 'package:voice_auth_app/models/response.dart';
 import 'package:voice_auth_app/utils/recorder.dart';
@@ -56,6 +57,7 @@ class _RegisrationViewState extends State<RegisrationView> {
   bool isRecording = false;
   Recorder recorder = Recorder();
   bool doneRecording = false;
+  bool postRequest = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,7 @@ class _RegisrationViewState extends State<RegisrationView> {
             physics: const NeverScrollableScrollPhysics(),
             children: <Widget>[
               register1(pageController),
-              register2(pageController),
+              postRequest ? Loading() : register2(pageController),
             ],
           ),
         ),
@@ -148,19 +150,20 @@ class _RegisrationViewState extends State<RegisrationView> {
                       style: ElevatedButton.styleFrom(
                         primary: elevatedButtonColor,
                         minimumSize: const Size(40, 45),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
                       ),
                       onPressed: () async{
-                        await user_controller.register(uname, uname);
-                        Navigator.push(
+                        setState(() {
+                          postRequest = true;
+                        });
+                        ResponseUsers res = await user_controller.register(uname, uname);
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => const NotesView()),
+                          (route) => false
                         );
                       }, 
-                      child: const Icon(
-                        Icons.arrow_right_alt_sharp,
-                        size: 25,
-                      )
+                      child: const Text("Done")
                     ),
                   ),
                 ],

@@ -39,7 +39,7 @@ Future register(String userName, String filename) async{
   print(res.headers['auth-token']);
 }
 
-Future login(String? userName, String? filename) async{
+Future<ResponseUsers> login(String? userName, String? filename) async{
   final Directory directory = await getApplicationDocumentsDirectory();
   String path = directory.path;
   String filepath = path + '/' + filename !+ '.wav';
@@ -56,4 +56,5 @@ Future login(String? userName, String? filename) async{
   final body = json.decode(await res.stream.bytesToString());
   ResponseUsers response = ResponseUsers.fromJson(body);
   print(response.error);
+  return response;
 }
