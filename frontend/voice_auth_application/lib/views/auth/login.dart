@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
-import 'package:voice_auth_app/models/response.dart';
+import 'package:voice_auth_app/models/response_user.dart';
 import 'package:voice_auth_app/utils/recorder.dart';
 import 'package:voice_auth_app/views/notes.dart';
 import 'package:voice_auth_app/views/templates/music_animation.dart';
@@ -113,7 +113,7 @@ class _LoginViewState extends State<LoginView> {
                           postRequest = true;
                         });
                         ResponseUsers res = await user_controller.login(widget.uname, widget.uname);
-                        if (res.error == null){
+                        if (res.status == "OK"){
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => const NotesView()),

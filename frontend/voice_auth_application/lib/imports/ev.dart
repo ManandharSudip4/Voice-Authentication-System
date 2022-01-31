@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-const String ipAddr = "http://192.168.254.17:8000";
+const String ipAddr = "http://192.168.1.77:8000";
 Color backgroundColor=  const Color(0xff3E4768);
 Color elevatedButtonColor = const Color(0xff1569C7);
 Color cardColor = const Color(0xffEBF4FA);
@@ -15,4 +15,28 @@ const inputDecoration = InputDecoration(
   focusedBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.green, width: 2),
   )
+);
+
+const noteTitleDecoration = InputDecoration(
+  filled: true,
+  fillColor: Color(0xff3E4768),
+  hintText: 'Title',
+  hintStyle: TextStyle(
+    color: Color(0xffacacac),
+
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Color(0xff3E4768), width: 0),
+  ),
+);
+
+const noteBodyDecoration = InputDecoration(
+  filled: true,
+  fillColor: Color(0xff3E4768),
+  enabledBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Color(0xff3E4768), width: 0),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Color(0xff3E4768), width: 0),
+  ),
 );

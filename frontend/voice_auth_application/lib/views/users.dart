@@ -3,7 +3,7 @@ import 'package:voice_auth_app/controllers/user_controller.dart' as user_control
 import 'package:voice_auth_app/models/user.dart';
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
-import 'package:voice_auth_app/models/response.dart';
+import 'package:voice_auth_app/models/response_user.dart';
 import 'package:voice_auth_app/views/auth/login.dart';
 import 'package:voice_auth_app/views/auth/register.dart';
 
@@ -72,13 +72,13 @@ class UsersView extends StatelessWidget {
   Widget userCard(context,User user){
     return InkWell(
       onTap: (){
-        String id = user.id;
+        // String id = user.id;
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>  LoginView(id: user.id, uname: user.userName,)),
         );
-        print(user.userName);
-        print(user.id);
+        // print(user.userName);
+        // print(user.id);
       },
       child: Card(
         color: cardColor,

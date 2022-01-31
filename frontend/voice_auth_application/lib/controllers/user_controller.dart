@@ -2,22 +2,37 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:voice_auth_app/models/response.dart';
+import 'package:voice_auth_app/models/response_user.dart';
 import 'package:voice_auth_app/imports/ev.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<ResponseSingleUser> getUserInfo() async{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('auth-token') ?? "";
+  final Map<String, String> header = {
+    'auth-token': token
+  };
+  final response = await http
+    .get(Uri.parse('$ipAddr/user'), headers: header);
+  // print(response.body);
+  return ResponseSingleUser.fromJson(jsonDecode(response.body));
+}
+
 Future<ResponseUsers> getAllUsers() async {
   final response = await http
       .get(Uri.parse('$ipAddr/user/users'));
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-  // print(res.data);
-    return ResponseUsers.fromJson(jsonDecode(response.body));
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load album');
-  }
+  return ResponseUsers.fromJson(jsonDecode(response.body));
+  // if (response.statusCode == 200) {
+  //   // If the server did return a 200 OK response,
+  //   // then parse the JSON.
+  // // print(res.data);
+  //   return ResponseUsers.fromJson(jsonDecode(response.body));
+  // } else {
+  //   // If the server did not return a 200 OK response,
+  //   // then throw an exception.
+  //   throw Exception('Failed to load album');
+  // }
 }
 
 Future register(String userName, String filename) async{
@@ -36,7 +51,11 @@ Future register(String userName, String filename) async{
   // print('::::::::::::::::::::::::::::');
   final body = json.decode(await res.stream.bytesToString());
   ResponseUsers response = ResponseUsers.fromJson(body);
-  print(res.headers['auth-token']);
+  // print(res.headers['auth-token']);
+  if (response.status == "OK"){
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth-token', res.headers['auth-token'] ?? "");
+  }
 }
 
 Future<ResponseUsers> login(String? userName, String? filename) async{
@@ -55,6 +74,15 @@ Future<ResponseUsers> login(String? userName, String? filename) async{
   // print('::::::::::::::::::::::::::::');
   final body = json.decode(await res.stream.bytesToString());
   ResponseUsers response = ResponseUsers.fromJson(body);
-  print(response.error);
+  if(response.status == "OK"){
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth-token', res.headers['auth-token'] ?? "");
+  }
   return response;
+}
+
+Future logout() async{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("auth-token", "");
+  // await prefs.remove('auth-token');
 }
