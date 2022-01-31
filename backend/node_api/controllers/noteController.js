@@ -21,7 +21,7 @@ const noteCreate = async (req, res) => {
     console.log("Creating notes");
     var data = req.body;
     var userId = req.user._id;
-
+    console.log(data);
     // validation
     let error = noteValidation(data);
     if (error) {

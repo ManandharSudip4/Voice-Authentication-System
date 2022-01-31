@@ -8,6 +8,7 @@ const fs = require('fs');
 const uploadRegister = mutler({ dest: config.uploadRegisterDir});
 const uploadLogin = mutler({ dest: config.uploadLoginDir});
 
+router.get('/', verify, userController.getUserInfoFromToken);
 router.post('/registerUser', uploadRegister.single("audioFile"), userController.userRegisternew);
 router.post('/loginUser', uploadLogin.single("audioFile"), userController.userLoginnew);
 router.post('/register', userController.userRegister);

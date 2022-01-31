@@ -186,6 +186,22 @@ const userLogin = async (req, res) => {
 
 }
 
+const getUserInfoFromToken = async (req, res) => {
+   var userId = req.user._id;
+   var usersProjection = {
+	_id: 1,
+	userName: 1
+   }
+   User.findById(userId, usersProjection)
+	.then((data) => {
+	    return response.response(res, response.status_ok, response.code_ok, null, "success", data);
+	})
+	.catch((err) => {
+	    return response.response(res, response.status_fail, response.code_ok, "Error", null, null);
+	});
+}
+
+
 const getUsers = async (req, res) => {
     console.log('Getting all users');
     var usersProjection = {
@@ -223,6 +239,7 @@ module.exports = {
     getUsers,
     userRegisternew,
     userLoginnew,
+    getUserInfoFromToken,
     test
 }
 // const upload =  async 
