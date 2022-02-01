@@ -17,6 +17,14 @@ import subprocess
 
 def main():
 
+    fmin = 100              # Minimum Frequency
+    fmax = 8000             # Maximum Frequency
+    sr = 16000              # Sampling Rate (Number of samples in 1 sec)
+    n_mfcc = 13             # Number of coefficients to extract
+    n_mels = 40             # Number of mel bins
+    hop_length = 160        # Number of samples to shift window by
+    n_fft = 512             # Number of samples in a window
+
     for root, dirs, files in os.walk('../audioFiles/dev-clean', topdown=False):
         for name in files:
             name = os.path.join(root, name)
@@ -29,8 +37,12 @@ def main():
 
                 subprocess.run(['rm', name+'.wav'])
 
-                mfcc = mfcc_using_librosa(y, sr)
+                mfcc = mfcc_using_librosa(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft,
+                                          n_mels=n_mels, hop_length=hop_length, fmin=fmin, fmax=fmax)
                 print(mfcc.shape)
+                with open('../dataset.csv', 'a+') as f:
+                    writer = csv.writer(f)
+                    writer.writerows(mfcc)
 
                 # mfcc = mfcc_using_psf(y, sr)
                 # print(mfcc.shape)
@@ -47,9 +59,9 @@ def main():
     # extract_mfcc()
 
 
-def mfcc_using_librosa(y, sr):
-    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=512,
-                                n_mels=40, hop_length=160, fmin=0, fmax=None, htk=False)
+def mfcc_using_librosa(y, sr, n_mfcc, n_fft, n_mels, hop_length, fmin, fmax):
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft,
+                                n_mels=n_mels, hop_length=hop_length, fmin=fmin, fmax=fmax, htk=False)
     mfcc = np.transpose(mfcc)
     return mfcc
 
