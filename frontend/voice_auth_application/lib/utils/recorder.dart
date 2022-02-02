@@ -24,15 +24,15 @@ class Recorder{
 
       _recorder = FlutterSoundRecorder();
       // get permission
-      final status = await Permission.microphone.request();
-      final stat = await Permission.storage.request();
-      final st = await Permission.manageExternalStorage.request();
-      if (status != PermissionStatus.granted || stat != PermissionStatus.granted || st != PermissionStatus.granted){
-        await Permission.microphone.request();
-        await Permission.storage.request();
-        await Permission.manageExternalStorage.request();
+      var status = await Permission.microphone.request();
+      var stat = await Permission.storage.request();
+      await Permission.manageExternalStorage.request();
+      while (status != PermissionStatus.granted || stat != PermissionStatus.granted){
+        status = await Permission.microphone.request();
+        stat = await Permission.storage.request();
+        // st = await Permission.manageExternalStorage.request();
         // print("permission denied");
-        return;
+        // return;
 
       }
 
