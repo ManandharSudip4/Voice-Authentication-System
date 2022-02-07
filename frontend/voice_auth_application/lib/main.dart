@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 // ignore: unused_import
 import 'package:voice_auth_app/checklogin.dart';
 import 'package:voice_auth_app/imports/ev.dart';
-import 'package:voice_auth_app/views/users.dart';
-
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
@@ -21,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: UsersView(),
+      home: CheckLogin(),
     );
   }
 }

@@ -128,3 +128,4 @@ dmypy.json
 .pyre/
 
 backend/node_api/config.json
+frontend/voice_auth_application/lib/config.dart

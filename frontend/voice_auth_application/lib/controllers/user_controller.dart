@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:voice_auth_app/models/response_user.dart';
-import 'package:voice_auth_app/imports/ev.dart';
+import 'package:voice_auth_app/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<ResponseSingleUser> getUserInfo() async{

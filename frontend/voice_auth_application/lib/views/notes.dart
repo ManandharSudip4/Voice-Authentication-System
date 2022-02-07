@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:voice_auth_app/checklogin.dart';
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
 import 'package:voice_auth_app/models/response_note.dart';
@@ -131,20 +130,29 @@ class _NotesViewState extends State<NotesView> with TickerProviderStateMixin{
 
 Widget userHeader(String name, BuildContext context){
   return Row(
-    children:  <Widget>[
-      const CircleAvatar(
-        backgroundColor: Colors.red,
-        radius: 30,
-      ),
-      const SizedBox( width: 20,),
-      Text(
-        name,
-        style: const TextStyle(
-          fontSize: 30,
-          color: Color(0xffffffff)
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        child: Row(
+          children:  <Widget>[
+            const CircleAvatar(
+              backgroundColor: Colors.red,
+              radius: 30,
+            ),
+            const SizedBox( width: 20,),
+            Expanded(
+              child: Text(
+                name,
+                style: const TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 30,
+                  color: Color(0xffffffff)
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      const SizedBox( width: 110,),
       TextButton(
         onPressed: (){
           user_controller.logout();

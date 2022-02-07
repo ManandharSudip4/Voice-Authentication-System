@@ -32,8 +32,8 @@ class _CheckLoginState extends State<CheckLogin> {
       future: isLogin(),
       builder: (context, snapshot){
         if (snapshot.hasData){
-          bool islogin = snapshot.hasData;
-          print(islogin);
+          bool islogin = snapshot.data ?? false;
+          // print(islogin);
           return islogin ? const NotesView() : const UsersView();
         }else{
           return Loading();
@@ -47,7 +47,7 @@ Future<bool> isLogin() async{
   bool isLogin = false;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString('auth-token') ?? "";
-  print(token);
+  // print(token);
   if (token != ""){
     isLogin = true;
   }

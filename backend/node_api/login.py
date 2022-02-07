@@ -6,7 +6,7 @@ import time
 user = sys.argv[1]
 file = sys.argv[2]
 isUser = True
-if (user == "lethal" or user == "lethal12"):
+if (user == "Lethal" or user == "lethal12"):
     isUser = True
 
 data = {

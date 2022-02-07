@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:voice_auth_app/imports/ev.dart';
+import 'package:voice_auth_app/config.dart';
 import 'package:voice_auth_app/models/note.dart';
 import 'package:voice_auth_app/models/response_note.dart';
 

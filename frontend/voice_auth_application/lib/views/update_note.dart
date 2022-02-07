@@ -19,12 +19,13 @@ class UpdateNote extends StatefulWidget {
 class _UpdateNoteState extends State<UpdateNote> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool favorite = false;
+  bool favorite = false; 
   String title = "";
   String body = "";
+  bool getfavorite = true;
   @override
   Widget build(BuildContext context) {
-    favorite =  widget.favorite ?? false;
+    getfavorite ?  favorite =  widget.favorite ?? false : null;
     title = widget.title ?? "";
     body = widget.body ?? "";
     return Scaffold(
@@ -37,6 +38,7 @@ class _UpdateNoteState extends State<UpdateNote> {
             onPressed: (){
               setState(() {
                 favorite = !favorite;
+                getfavorite = false;
               });
             }, 
             child: Icon(
