@@ -1,0 +1,10 @@
+{
+    "port": 8000,
+    "ip_addr_local": "127.0.0.1",
+    "ip_addr": "",
+    "uploadRegisterDir": "",
+    "uploadLoginDir": "",
+    "db_connect": "",
+    "db_name": "",
+    "token_key": ""
+}

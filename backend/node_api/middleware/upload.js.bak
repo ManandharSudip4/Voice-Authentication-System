@@ -1,0 +1,64 @@
+
+const util = require('util');
+const multer = require('multer');
+const path = require('path');
+
+const config = require('../config.json');
+var base_dir = path.join( __dirname, "../")
+var registerDest = path.join(base_dir, config.uploadRegisterDir)
+var fileName;
+
+function checkFileType(file, cb){
+    let allowedTypes = /wav/;
+    let extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    let mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname){
+        return cb(null, true);
+    } else {
+        cb('Error: wav only!');
+    }
+}
+
+const registerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, registerDest);
+    },
+    filename: (req, file, cb) => {
+        fileName = file.originalname 
+        cb(null, file.originalname)
+    },
+});
+
+const registerUploadFile = multer({
+    storage: registerStorage,
+    fileFilter: function(req, file, cb){
+        checkFileType(file, cb)
+    }
+}).single("audio");
+
+// const loginStorage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, registerDest);
+//     },
+//     filename: (req, file, cb) => {
+//         fileName = file.originalname 
+//         cb(null, file.originalname)
+//     },
+// });
+
+// const loginUploadFile = multer({
+//     storage: loginStorage,
+//     fileFilter: function(req, file, cb){
+//         checkFileType(file, cb)
+//     }
+// }).single("audio");
+
+let registerUploadFileMiddleware = util.promisify(registerUploadFile);
+// let loginUploadFileMiddleware = util.promisify(loginUploadFile);
+
+const getFileName = () => {
+    return fileName
+}
+
+module.exports = {registerUploadFileMiddleware, getFileName}; 
