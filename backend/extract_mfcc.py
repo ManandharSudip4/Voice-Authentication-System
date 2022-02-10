@@ -7,7 +7,6 @@ import subprocess
 
 
 def extractMfcc(audioPath, file=False):
-    print('abc')
     fmin = 100              # Minimum Frequency
     fmax = 8000             # Maximum Frequency
     sr = 22050              # Sampling Rate (Number of samples in 1 sec)
