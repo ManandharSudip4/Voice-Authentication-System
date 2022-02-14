@@ -49,10 +49,12 @@ const userRegisternew = async (req, res) => {
             })
             .then(async () => {
                 // Making GMM for the new user
+                console.log("hhhehsahehsaigei");
                 const make_gmm_output = await makeGmm(data.userName);
                 console.log(make_gmm_output);
             })
             .catch((err) => {
+                console.log(err);
                 return response.response(
                     res,
                     response.status_fail,
@@ -99,6 +101,13 @@ const userLoginnew = async (req, res) => {
 
         // check user
         var user = await User.findOne({ userName: data.userName });
+        // .then(
+        //     async () => {
+        //         // Verifying the user user
+        //         const identify_output = await identify(data.userName);
+        //         console.log(make_gmm_output);
+        //     }
+        // )
         if (!user)
             return response.response(
                 res,
@@ -111,19 +120,19 @@ const userLoginnew = async (req, res) => {
 
         // interaction with python module
         const pythonProcess = spwan("python", [
-            "login.py",
-            user.userName,
-            user.audioFile,
+            "../identify.py",
+            data.userName,
         ]);
-        await pythonProcess.stdout.on("data", (data) => {
-            pythonData = data.toString();
-            pythonData = JSON.parse(pythonData);
-            // console.log(pythonData)
+        pythonProcess.stdout.on("data", (data) => {
+            console.log(data.toString());
+            pythonData = data.toString().split("\n").pop();
+            // pythonData = JSON.parse(pythonData);
+            console.log(pythonData);
         });
 
-        await pythonProcess.on("close", (code) => {
+        pythonProcess.on("close", (code) => {
             console.log(`Child process closs all stdio with code: ${code}`);
-            if (!pythonData.isUser)
+            if (pythonData == "False")
                 return response.response(
                     res,
                     response.status_fail,
@@ -132,18 +141,20 @@ const userLoginnew = async (req, res) => {
                     null,
                     null
                 );
-            // create jwt token and assign
-            var token = jwt.sign({ _id: user._id }, config.token_key);
+            else {
+                // create jwt token and assign
+                var token = jwt.sign({ _id: user._id }, config.token_key);
 
-            return response.responseToken(
-                res,
-                response.status_ok,
-                response.code_ok,
-                null,
-                "success",
-                null,
-                token
-            );
+                return response.responseToken(
+                    res,
+                    response.status_ok,
+                    response.code_ok,
+                    null,
+                    "success",
+                    null,
+                    token
+                );
+            }
         });
     });
     src.on("error", function (err) {
@@ -419,6 +430,7 @@ const test = async (req, res) => {
 };
 
 const makeGmm = async (username) => {
+    console.log("ketshapwe");
     const pythonProcess = spwan("python", ["../make_gmm.py", username]);
     pythonProcess.stdout.on("data", (data) => {
         data = data.toString();
@@ -429,6 +441,19 @@ const makeGmm = async (username) => {
     });
     return;
 };
+
+// const identify = async (username) => {
+//     const pythonProcess = spwan("python", ["../identify.py", username]);
+//     pythonProcess.stdout.on("data", (data) => {
+//         data = data.toString();
+//         console.log(data);
+//     });
+//     pythonProcess.on("close", (code) => {
+//         console.log(`child process close all stdio with code: ${code}`);
+//     });
+//     return;
+// };
+
 module.exports = {
     userRegister,
     userLogin,
@@ -436,6 +461,5 @@ module.exports = {
     userRegisternew,
     userLoginnew,
     getUserInfoFromToken,
-    test,
 };
 // const upload =  async

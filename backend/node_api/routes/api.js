@@ -14,7 +14,7 @@ router.post('/loginUser', uploadLogin.single("audioFile"), userController.userLo
 router.post('/register', userController.userRegister);
 router.post('/login', userController.userLogin);
 router.get('/users', userController.getUsers);
-router.get('/test', userController.test);
+// router.get('/test', userController.test);
 
 router.post('/notes/create', verify, noteController.noteCreate);
 router.get('/notes', verify, noteController.noteIndex);
