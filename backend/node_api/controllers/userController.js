@@ -22,7 +22,7 @@ const userRegisternew = async (req, res) => {
     var data = req.body;
     var src = fs.createReadStream(req.file.path);
     var dest = fs.createWriteStream(audioFile);
-    src.pipe(dest);
+    src.pipe(dest); // audioFile contains data tha was in req.file.path 
     src.on("end", function () {
         fs.unlinkSync(req.file.path);
         // create new user
@@ -47,8 +47,15 @@ const userRegisternew = async (req, res) => {
                 );
                 // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
             })
+            .then( async () => {
+                // Speech Recognition. This Should be in userLoginNew !!!! 
+                console.log("Speech Recognition")
+                const inputSpeech = await recognizeSpeech(data.userName);
+                console.log(inputSpeech)
+            })
             .then(async () => {
                 // Making GMM for the new user
+                console.log("Making GMM for the new user");
                 const make_gmm_output = await makeGmm(data.userName);
                 console.log(make_gmm_output);
             })
@@ -67,6 +74,7 @@ const userRegisternew = async (req, res) => {
     src.on("error", function (err) {
         res.json("Something went wrong!");
     });
+    // console.log("hello world");
     console.log(req.body);
 };
 
@@ -151,6 +159,7 @@ const userLoginnew = async (req, res) => {
     });
     console.log(req.body);
 };
+
 const userRegister = async (req, res) => {
     console.log("Registering");
     try {
@@ -179,6 +188,7 @@ const userRegister = async (req, res) => {
     }
     console.log("file uploaded");
     let data = req.body;
+
     let audioFile = req.file.originalname;
 
     // validation
@@ -418,17 +428,31 @@ const test = async (req, res) => {
     return;
 };
 
+const recognizeSpeech = (username) => {
+    console.log("Recognizing Speech");
+    const pythonProcessforSR = spwan("python", ["../speechrecognition.py", username]);
+    pythonProcessforSR.stdout.on("data", (data) =>{
+        data = data.toString();
+        console.log(data);
+    });
+    pythonProcessforSR.on("close", (code) => {
+        console.log(`child process SR close all stdio with code: ${code}`);
+    });
+};
+
 const makeGmm = async (username) => {
-    const pythonProcess = spwan("python", ["../make_gmm.py", username]);
+    console.log("making gmm");
+    const pythonProcess = spwan("python", ["../make_gmm.py", username]);    // spwan is a command designed to run system commands, When you run spawn, you send it a system command that will be run on its own process, but does not execute any further code within your node process.  
     pythonProcess.stdout.on("data", (data) => {
         data = data.toString();
         console.log(data);
     });
     pythonProcess.on("close", (code) => {
-        console.log(`child process close all stdio with code: ${code}`);
+        console.log(`child process makeGMM close all stdio with code: ${code}`);
     });
     return;
 };
+
 module.exports = {
     userRegister,
     userLogin,

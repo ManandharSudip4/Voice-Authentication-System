@@ -49,6 +49,7 @@ app.post('/upload', upload.single("audioFile"), function (req,res) {
     });
     src.on('error', function(err) { res.json('Something went wrong!'); }); 
     console.log(req.body);
+    console.log("This is required.")
  })
 
 app.use((req, res) => {

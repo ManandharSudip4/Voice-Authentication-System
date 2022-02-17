@@ -14,15 +14,20 @@ import sys
 # speakerName = '174'
 
 speakerName = sys.argv[1]
+# print(speakerName)
+# audioPath = 'node_api/public/assets/uploads/register/' + speakerName + '.wav'
 audioPath = './public/assets/uploads/register/' + speakerName + '.wav'
-
+# print("py file triggered")
+# sys.stdout.flush()
 
 def makeGmm(audioPath, speakerName):
+    # print("test1")
+    # gmm_path = "./GMMs/"
     gmm_path = "../GMMs/"
     model_name = speakerName + '.gmm'
     mfcc = extractMfcc(audioPath, file=True)
     gmm = GaussianMixture(
-        n_components=16, covariance_type='diag', max_iter=500, n_init=3, verbose=1)
+        n_components=16, covariance_type='diag', max_iter=500, n_init=3, verbose=1, reg_covar=0.1)      # fitting error solved
     gmm.fit(mfcc)
     pickle.dump(gmm, open(gmm_path + model_name, 'wb'))
 
@@ -33,3 +38,4 @@ try:
     print('Done')
 except Exception as e:
     print(e)
+

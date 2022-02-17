@@ -19,8 +19,8 @@ def extractMfcc(audioPath, file=False):
 
     if file:
         try:
-            subprocess.run(['sox', audioPath,
-                            audioPath+'.wav'])
+            # print(audioPath)
+            subprocess.run(['sox', audioPath, audioPath+'.wav'])
             y, sr = librosa.load(audioPath+'.wav', sr=sr)
             subprocess.run(['rm', audioPath+'.wav'])
             mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft,
