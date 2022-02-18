@@ -60,6 +60,7 @@ const userRegisternew = async (req, res) => {
                 console.log(make_gmm_output);
             })
             .catch((err) => {
+                console.log(err);
                 return response.response(
                     res,
                     response.status_fail,
@@ -107,6 +108,13 @@ const userLoginnew = async (req, res) => {
 
         // check user
         var user = await User.findOne({ userName: data.userName });
+        // .then(
+        //     async () => {
+        //         // Verifying the user user
+        //         const identify_output = await identify(data.userName);
+        //         console.log(make_gmm_output);
+        //     }
+        // )
         if (!user)
             return response.response(
                 res,
@@ -119,19 +127,19 @@ const userLoginnew = async (req, res) => {
 
         // interaction with python module
         const pythonProcess = spwan("python", [
-            "login.py",
-            user.userName,
-            user.audioFile,
+            "../identify.py",
+            data.userName,
         ]);
-        await pythonProcess.stdout.on("data", (data) => {
-            pythonData = data.toString();
-            pythonData = JSON.parse(pythonData);
-            // console.log(pythonData)
+        pythonProcess.stdout.on("data", (data) => {
+            console.log(data.toString());
+            pythonData = data.toString().split("\n").pop();
+            // pythonData = JSON.parse(pythonData);
+            console.log(pythonData);
         });
 
-        await pythonProcess.on("close", (code) => {
+        pythonProcess.on("close", (code) => {
             console.log(`Child process closs all stdio with code: ${code}`);
-            if (!pythonData.isUser)
+            if (pythonData == "False")
                 return response.response(
                     res,
                     response.status_fail,
@@ -140,18 +148,20 @@ const userLoginnew = async (req, res) => {
                     null,
                     null
                 );
-            // create jwt token and assign
-            var token = jwt.sign({ _id: user._id }, config.token_key);
+            else {
+                // create jwt token and assign
+                var token = jwt.sign({ _id: user._id }, config.token_key);
 
-            return response.responseToken(
-                res,
-                response.status_ok,
-                response.code_ok,
-                null,
-                "success",
-                null,
-                token
-            );
+                return response.responseToken(
+                    res,
+                    response.status_ok,
+                    response.code_ok,
+                    null,
+                    "success",
+                    null,
+                    token
+                );
+            }
         });
     });
     src.on("error", function (err) {
@@ -442,7 +452,7 @@ const recognizeSpeech = (username) => {
 
 const makeGmm = async (username) => {
     console.log("making gmm");
-    const pythonProcess = spwan("python", ["../make_gmm.py", username]);    // spwan is a command designed to run system commands, When you run spawn, you send it a system command that will be run on its own process, but does not execute any further code within your node process.  
+    const pythonProcess = spwan("python", ["../make_gmm.py", username]);
     pythonProcess.stdout.on("data", (data) => {
         data = data.toString();
         console.log(data);
@@ -453,6 +463,18 @@ const makeGmm = async (username) => {
     return;
 };
 
+// const identify = async (username) => {
+//     const pythonProcess = spwan("python", ["../identify.py", username]);
+//     pythonProcess.stdout.on("data", (data) => {
+//         data = data.toString();
+//         console.log(data);
+//     });
+//     pythonProcess.on("close", (code) => {
+//         console.log(`child process close all stdio with code: ${code}`);
+//     });
+//     return;
+// };
+
 module.exports = {
     userRegister,
     userLogin,
@@ -460,6 +482,5 @@ module.exports = {
     userRegisternew,
     userLoginnew,
     getUserInfoFromToken,
-    test,
 };
 // const upload =  async
