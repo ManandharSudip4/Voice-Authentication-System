@@ -20,6 +20,7 @@ audioPath = './public/assets/uploads/register/' + speakerName + '.wav'
 # print("py file triggered")
 # sys.stdout.flush()
 
+
 def makeGmm(audioPath, speakerName):
     # print("test1")
     # gmm_path = "./GMMs/"
@@ -36,6 +37,7 @@ print(f'Making GMM for {speakerName}...')
 try:
     makeGmm(audioPath, speakerName)
     print('Done')
+    print(True, end='')
 except Exception as e:
     print(e)
-
+    print(False, end='')

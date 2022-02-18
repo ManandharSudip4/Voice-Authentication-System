@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "await-spawn": "^4.0.2",
     "bcryptjs": "^2.4.3",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",

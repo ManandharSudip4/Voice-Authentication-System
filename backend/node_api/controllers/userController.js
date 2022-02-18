@@ -1,3 +1,4 @@
+const spawn = require("await-spawn");
 const uploadFile = require("../middleware/upload");
 const {
     loginValidation,
@@ -5,7 +6,6 @@ const {
 } = require("../imports/validation");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-const spwan = require("child_process").spawn;
 const response = require("../imports/response");
 
 // environment
@@ -22,44 +22,60 @@ const userRegisternew = async (req, res) => {
     var data = req.body;
     var src = fs.createReadStream(req.file.path);
     var dest = fs.createWriteStream(audioFile);
-    src.pipe(dest); // audioFile contains data tha was in req.file.path 
-    src.on("end", function () {
+    src.pipe(dest); // audioFile contains data that was in req.file.path
+    src.on("end", async () => {
         fs.unlinkSync(req.file.path);
-        // create new user
-        const user = new User({
-            userName: data.userName,
-            audioFile: fileName, //audioFile
-        });
+        console.log("Making GMM for the new user");
+        const make_gmm_result = await makeGmm(data.userName);
+        if (make_gmm_result == "True") {
+            console.log("Succeeded making GMM for the new user");
 
-        user.save()
-            .then((result) => {
-                console.log("saving user");
-                // create jwt token
-                var token = jwt.sign({ _id: user._id }, config.token_key);
-                return response.responseToken(
-                    res,
-                    response.status_ok,
-                    response.code_ok,
-                    null,
-                    "success",
-                    null,
-                    token
-                );
-                // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
-            })
-            .then( async () => {
-                // Speech Recognition. This Should be in userLoginNew !!!! 
-                console.log("Speech Recognition")
-                const inputSpeech = await recognizeSpeech(data.userName);
-                console.log(inputSpeech)
-            })
-            .then(async () => {
-                // Making GMM for the new user
-                console.log("Making GMM for the new user");
-                const make_gmm_output = await makeGmm(data.userName);
-                console.log(make_gmm_output);
-            })
-            .catch((err) => {
+            // Speech recognition code goes here
+            console.log("Verifying speech");
+            const speech_recognition_result = await recognizeSpeech(
+                data.userName
+            );
+            if (speech_recognition_result == "True") {
+                console.log("Speech verified");
+
+                // Create new user
+                const user = new User({
+                    userName: data.userName,
+                    audioFile: fileName,
+                });
+                user.save()
+                    .then((result) => {
+                        console.log("saving user");
+                        // create jwt token
+                        var token = jwt.sign(
+                            { _id: user._id },
+                            config.token_key
+                        );
+                        return response.responseToken(
+                            res,
+                            response.status_ok,
+                            response.code_ok,
+                            null,
+                            "success",
+                            null,
+                            token
+                        );
+                        // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        return response.response(
+                            res,
+                            response.status_fail,
+                            response.code_failed,
+                            err,
+                            null,
+                            null
+                        );
+                    });
+            } else {
+                err = "Speech verification failed";
+                console.log("Something went wrong");
                 console.log(err);
                 return response.response(
                     res,
@@ -69,10 +85,24 @@ const userRegisternew = async (req, res) => {
                     null,
                     null
                 );
-            });
+            }
+        } else {
+            err = "Failed making GMM for the new user";
+            console.log("Something went wrong");
+            console.log(err);
+            return response.response(
+                res,
+                response.status_fail,
+                response.code_failed,
+                err,
+                null,
+                null
+            );
+        }
+        console.log("abc");
     });
-
     src.on("error", function (err) {
+        console.log(err.message);
         res.json("Something went wrong!");
     });
     // console.log("hello world");
@@ -108,13 +138,6 @@ const userLoginnew = async (req, res) => {
 
         // check user
         var user = await User.findOne({ userName: data.userName });
-        // .then(
-        //     async () => {
-        //         // Verifying the user user
-        //         const identify_output = await identify(data.userName);
-        //         console.log(make_gmm_output);
-        //     }
-        // )
         if (!user)
             return response.response(
                 res,
@@ -125,44 +148,32 @@ const userLoginnew = async (req, res) => {
                 null
             );
 
-        // interaction with python module
-        const pythonProcess = spwan("python", [
-            "../identify.py",
-            data.userName,
-        ]);
-        pythonProcess.stdout.on("data", (data) => {
-            console.log(data.toString());
-            pythonData = data.toString().split("\n").pop();
-            // pythonData = JSON.parse(pythonData);
-            console.log(pythonData);
-        });
+        const result = await identify(data.userName);
+        if (result == "True") {
+            console.log("Verification successful");
+            // create jwt token and assign
+            var token = jwt.sign({ _id: user._id }, config.token_key);
 
-        pythonProcess.on("close", (code) => {
-            console.log(`Child process closs all stdio with code: ${code}`);
-            if (pythonData == "False")
-                return response.response(
-                    res,
-                    response.status_fail,
-                    response.code_failed,
-                    "You are an imposter",
-                    null,
-                    null
-                );
-            else {
-                // create jwt token and assign
-                var token = jwt.sign({ _id: user._id }, config.token_key);
-
-                return response.responseToken(
-                    res,
-                    response.status_ok,
-                    response.code_ok,
-                    null,
-                    "success",
-                    null,
-                    token
-                );
-            }
-        });
+            return response.responseToken(
+                res,
+                response.status_ok,
+                response.code_ok,
+                null,
+                "success",
+                null,
+                token
+            );
+        } else {
+            console.log("Verification failed");
+            return response.response(
+                res,
+                response.status_fail,
+                response.code_failed,
+                "You are an imposter",
+                null,
+                null
+            );
+        }
     });
     src.on("error", function (err) {
         res.json("Something went wrong!");
@@ -424,56 +435,39 @@ const getUsers = async (req, res) => {
         });
 };
 
-const test = async (req, res) => {
-    const pythonProcess = spwan("python", ["test.py", "lethal", "file"]);
-    pythonProcess.stdout.on("data", (data) => {
-        data = data.toString();
-        data = JSON.parse(data);
-        console.log(`${data.isUser} ${data.user} ${data.file}`);
-    });
-    pythonProcess.on("close", (code) => {
-        console.log(`child process close all stdio with code: ${code}`);
-    });
-    res.status(200).send("success");
-    return;
-};
+const recognizeSpeech = async (username) => {
+    /*
+            This function needs to be properly implemented.
+            For now this function only returns 'True'
+    */
 
-const recognizeSpeech = (username) => {
-    console.log("Recognizing Speech");
-    const pythonProcessforSR = spwan("python", ["../speechrecognition.py", username]);
-    pythonProcessforSR.stdout.on("data", (data) =>{
-        data = data.toString();
-        console.log(data);
-    });
-    pythonProcessforSR.on("close", (code) => {
-        console.log(`child process SR close all stdio with code: ${code}`);
-    });
+    // console.log("Recognizing Speech");
+    // const pythonProcessforSR = await spawn("python", [
+    //     "../speechrecognition.py",
+    //     username,
+    // ]);
+    // const data = pythonProcessforSR.toString();
+    // console.log(data);
+
+    return "True";
 };
 
 const makeGmm = async (username) => {
     console.log("making gmm");
-    const pythonProcess = spwan("python", ["../make_gmm.py", username]);
-    pythonProcess.stdout.on("data", (data) => {
-        data = data.toString();
-        console.log(data);
-    });
-    pythonProcess.on("close", (code) => {
-        console.log(`child process makeGMM close all stdio with code: ${code}`);
-    });
-    return;
+    data = await spawn("python", ["../make_gmm.py", username]);
+    data = data.toString();
+    console.log(data);
+    const result = data.split("\n").pop();
+    console.log("result is ", result);
+    return result;
 };
 
-// const identify = async (username) => {
-//     const pythonProcess = spwan("python", ["../identify.py", username]);
-//     pythonProcess.stdout.on("data", (data) => {
-//         data = data.toString();
-//         console.log(data);
-//     });
-//     pythonProcess.on("close", (code) => {
-//         console.log(`child process close all stdio with code: ${code}`);
-//     });
-//     return;
-// };
+const identify = async (username) => {
+    const pythonProcess = await spawn("python", ["../identify.py", username]);
+    console.log(pythonProcess.toString());
+    const pythonData = pythonProcess.toString().split("\n").pop();
+    return pythonData;
+};
 
 module.exports = {
     userRegister,
@@ -483,4 +477,3 @@ module.exports = {
     userLoginnew,
     getUserInfoFromToken,
 };
-// const upload =  async
