@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
+import 'package:voice_auth_app/controllers/quote_controller.dart' as quote_controller;
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
 import 'package:voice_auth_app/models/response_user.dart';
@@ -24,6 +25,9 @@ class _LoginViewState extends State<LoginView> {
   Recorder recorder = Recorder();
   bool doneRecording = false;
   bool postRequest = false;
+  bool gotQuote = false;
+  String sentence = "";
+  bool imposter = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,15 +66,28 @@ class _LoginViewState extends State<LoginView> {
               ),
             ),
             const SizedBox(height: 10,),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-              child: Text(
-                "Test passage to be read by the user to setup the user model",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xffffffff)
-                ),
-                textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: FutureBuilder<String>(
+                future: quote_controller.getRandomQuote(),
+                builder: (context, snapshot){
+                  if(snapshot.hasData){
+                    gotQuote ? null : sentence = snapshot.data ?? "";
+                    gotQuote = true;
+                    return Center(
+                      child: Text(
+                        sentence,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Color(0xffffffff)
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  } else {
+                    return LoadingNotFullScreen();
+                  }
+                },
               ),
             ),
           ],
@@ -112,7 +129,7 @@ class _LoginViewState extends State<LoginView> {
                         setState(() {
                           postRequest = true;
                         });
-                        ResponseUsers res = await user_controller.login(widget.uname, widget.uname);
+                        ResponseUsers res = await user_controller.login(widget.uname, widget.uname, sentence);
                         if (res.status == "OK"){
                           Navigator.pushAndRemoveUntil(
                             context,
@@ -123,6 +140,8 @@ class _LoginViewState extends State<LoginView> {
                           setState(() {
                             error = res.error;
                             postRequest = false;
+                            doneRecording = false;
+                            gotQuote = false;
                           });
                         }
                       }, 

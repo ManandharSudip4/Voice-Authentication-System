@@ -107,11 +107,11 @@ class _RegisrationViewState extends State<RegisrationView> {
               )
             ),
             const SizedBox(height: 20,),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: Text(
-                "Test passage to be read by the user to setup the user model",
-                style: TextStyle(
+                registerSentence,
+                style: const TextStyle(
                   fontSize: 20,
                   color: Color(0xffffffff)
                 ),
