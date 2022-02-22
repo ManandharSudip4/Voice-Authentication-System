@@ -5,7 +5,6 @@ import sys
 import os
 import subprocess
 
-
 def getIpAddress():
     output = subprocess.run(['ip', 'addr'], capture_output=True, text=True)
     output = output.stdout
