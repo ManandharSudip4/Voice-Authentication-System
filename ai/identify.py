@@ -44,4 +44,4 @@ audioFile = './audio/test/'
 if __name__ == "__main__":
     speaker = sys.argv[1]
     speaker = identify(audioFile + speaker)
-    print(speaker)
+    # print(speaker)

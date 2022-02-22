@@ -2,7 +2,6 @@ import librosa
 import numpy as np
 import os
 import subprocess
-
 # audioPath = '../../audioFiles/dev-clean/LibriSpeech/dev-clean/84'
 
 
@@ -19,19 +18,20 @@ def extractMfcc(audioPath, file=False):
 
     if file:
         try:
-            print(audioPath)
+            # print(audioPath)
+
             subprocess.run(['sox', audioPath, audioPath+'.wav'])
             y, sr = librosa.load(audioPath+'.wav', sr=sr)
             subprocess.run(['rm', audioPath+'.wav'])
             mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft,
                                         n_mels=n_mels, hop_length=hop_length, fmin=fmin, fmax=fmax)
             mfcc = np.transpose(mfcc)
-            print(mfcc.shape)
+            # print(mfcc.shape)
         except Exception as e:
             print(e)
     else:
         for root, dirs, files in os.walk(audioPath, topdown=False):
-            print(audioPath)
+            # print(audioPath)
             for name in files:
                 name = os.path.join(root, name)
 
@@ -53,7 +53,7 @@ def extractMfcc(audioPath, file=False):
                         flag = 1
                         mfcc = currentMfcc
 
-                    print(mfcc.shape)
+                    # print(mfcc.shape)
 
                 except Exception as e:
                     print(e)
