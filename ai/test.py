@@ -1,0 +1,13 @@
+import matplotlib.pyplot as plt
+
+# learing rate = 1, start 45 end 60
+# -50 give more accurate result 92.5233644859813 => accuracy
+accuracy = [23.364485981308412, 32.71028037383177, 46.728971962616825, 68.51851851851852, 89.7196261682243, 92.5233644859813, 89.7196261682243, 85.04672897196261, 80.37383177570094, 80.37383177570094, 79.62962962962963, 80.37383177570094, 80.37383177570094, 80.37383177570094, 80.37383177570094]
+threshold = list(range(45, 60))
+
+plt.plot(threshold, accuracy)
+plt.xlabel("Threshold")
+plt.ylabel("Accuracy")
+plt.title("Accuracy list")
+plt.show()
+
