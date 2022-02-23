@@ -11,8 +11,8 @@ const uploadLogin = mutler({ dest: config.uploadLoginDir});
 router.get('/', verify, userController.getUserInfoFromToken);
 router.post('/registerUser', uploadRegister.single("audioFile"), userController.userRegisternew);
 router.post('/loginUser', uploadLogin.single("audioFile"), userController.userLoginnew);
-router.post('/register', userController.userRegister);
-router.post('/login', userController.userLogin);
+// router.post('/register', userController.userRegister);
+// router.post('/login', userController.userLogin);
 router.get('/users', userController.getUsers);
 // router.get('/test', userController.test);
 

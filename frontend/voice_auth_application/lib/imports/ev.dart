@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-Color backgroundColor=  const Color(0xff3E4768);
+
+Color backgroundColor = const Color(0xff3E4768);
 Color elevatedButtonColor = const Color(0xff1569C7);
 Color cardColor = const Color(0xffEBF4FA);
 Color floatingButtonColor = const Color(0xff32cd32);
@@ -38,4 +39,5 @@ const noteBodyDecoration = InputDecoration(
   ),
 );
 
-String registerSentence = "Test passage to be read by the user to setup the user model";
+String registerSentence =
+    "If two pieces of the same type of metal touch in space, they will permanently bond. This incredible fact is also known as cold welding and it happens because the atoms of two pieces of metal have no way of knowing they are separate. This does not happen on Earth because of the air and water found between the pieces.";
