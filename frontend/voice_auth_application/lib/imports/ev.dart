@@ -37,3 +37,5 @@ const noteBodyDecoration = InputDecoration(
     borderSide: BorderSide(color: Color(0xff3E4768), width: 0),
   ),
 );
+
+String registerSentence = "Test passage to be read by the user to setup the user model";

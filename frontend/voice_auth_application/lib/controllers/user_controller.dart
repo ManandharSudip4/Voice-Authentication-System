@@ -58,12 +58,13 @@ Future register(String userName, String filename) async{
   }
 }
 
-Future<ResponseUsers> login(String? userName, String? filename) async{
+Future<ResponseUsers> login(String? userName, String? filename, String? sentence) async{
   final Directory directory = await getApplicationDocumentsDirectory();
   String path = directory.path;
   String filepath = path + '/' + filename !+ '.wav';
   final request = http.MultipartRequest('POST', Uri.parse('$ipAddr/user/loginUser'));
   request.fields['userName'] =  userName!;
+  request.fields['sentence'] = sentence!;
   request.files.add( http.MultipartFile.fromBytes(
     'audioFile', 
     File(filepath).readAsBytesSync(),

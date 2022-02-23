@@ -34,6 +34,8 @@ const loginValidation = (data) => {
             .min(5)
             .max(255)
             .required(),
+        sentence: Joi.string()
+            .required()
     });
 
     const {error} = schema.validate(data, {
