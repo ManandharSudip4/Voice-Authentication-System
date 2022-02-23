@@ -27,83 +27,102 @@ const userRegisternew = async (req, res) => {
     src.on("end", async () => {
         fs.unlinkSync(req.file.path);
         console.log("Making GMM for the new user");
-        const make_gmm_result = await makeGmm(data.userName);
-        if (make_gmm_result == "True") {
-            console.log("Succeeded making GMM for the new user");
+        make_gmm_result = makeGmm(data.userName);
+        speech_recognition_result = recognizeSpeech(
+            data.userName,
+            data.sentence,
+            "register"
+        );
+        Promise.all([make_gmm_result, speech_recognition_result]).then(
+            ([make_gmm_result, speech_recognition_result]) => {
+                if (
+                    make_gmm_result == "True" &&
+                    speech_recognition_result == "True"
+                ) {
+                    console.log("Succeeded making GMM for the new user");
+                    console.log("Succeeded verifying speech for the new user");
 
-            // Speech recognition code goes here
-            console.log("Verifying speech");
-            const speech_recognition_result = await recognizeSpeech(
-                data.userName,
-                data.sentence,
-                "register"
-            );
-            console.log(speech_recognition_result);
-            if (speech_recognition_result == "True") {
-                console.log("Speech verified");
-
-                // Create new user
-                const user = new User({
-                    userName: data.userName,
-                    audioFile: fileName,
-                });
-                user.save()
-                    .then((result) => {
-                        console.log("saving user");
-                        // create jwt token
-                        var token = jwt.sign(
-                            { _id: user._id },
-                            config.token_key
-                        );
-                        return response.responseToken(
-                            res,
-                            response.status_ok,
-                            response.code_ok,
-                            null,
-                            "success",
-                            null,
-                            token
-                        );
-                        // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        return response.response(
-                            res,
-                            response.status_fail,
-                            response.code_failed,
-                            err,
-                            null,
-                            null
-                        );
+                    // Create new user
+                    const user = new User({
+                        userName: data.userName,
+                        audioFile: fileName,
                     });
-            } else {
-                err = "Speech verification failed";
-                console.log("Something went wrong");
-                console.log(err);
-                return response.response(
-                    res,
-                    response.status_fail,
-                    response.code_failed,
-                    err,
-                    null,
-                    null
-                );
+                    user.save()
+                        .then((result) => {
+                            console.log("saving user");
+                            // create jwt token
+                            var token = jwt.sign(
+                                { _id: user._id },
+                                config.token_key
+                            );
+                            return response.responseToken(
+                                res,
+                                response.status_ok,
+                                response.code_ok,
+                                null,
+                                "success",
+                                null,
+                                token
+                            );
+                            // res.status(200).header('auth-token', token).json(successMessage("Successfully Registered"))
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            return response.response(
+                                res,
+                                response.status_fail,
+                                response.code_failed,
+                                err,
+                                null,
+                                null
+                            );
+                        });
+                } else if (
+                    make_gmm_result == "True" &&
+                    speech_recognition_result == "False"
+                ) {
+                    err = "Failed verifying speech for the new user";
+                    console.log("Something went wrong");
+                    console.log(err);
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "Registration failed... Please read the passage carefully.",
+                        null,
+                        null
+                    );
+                } else if (
+                    make_gmm_result == "False" &&
+                    speech_recognition_result == "True"
+                ) {
+                    err = "Failed making gmm for the new user";
+                    console.log("Something went wrong");
+                    console.log(err);
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "Registration failed... Server error!!",
+                        null,
+                        null
+                    );
+                } else {
+                    err =
+                        "Failed verifying speech and making GMM for the new user";
+                    console.log("Something went wrong");
+                    console.log(err);
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "Registration failed...",
+                        null,
+                        null
+                    );
+                }
             }
-        } else {
-            err = "Failed making GMM for the new user";
-            console.log("Something went wrong");
-            console.log(err);
-            return response.response(
-                res,
-                response.status_fail,
-                response.code_failed,
-                err,
-                null,
-                null
-            );
-        }
-        console.log("abc");
+        );
     });
     src.on("error", function (err) {
         console.log(err.message);
@@ -152,48 +171,74 @@ const userLoginnew = async (req, res) => {
                 null
             );
 
-        const result = await identify(data.userName);
-        if (result == "True") {
-            const speech_recognition_result = await recognizeSpeech(
-                data.userName,
-                data.sentence,
-                "login"
-            );
-            if (speech_recognition_result == "True") {
-                console.log("Verification successful");
-                // create jwt token and assign
-                var token = jwt.sign({ _id: user._id }, config.token_key);
+        identification_result = identify(data.userName);
+        speech_recognition_result = recognizeSpeech(
+            data.userName,
+            data.sentence,
+            "login"
+        );
+        Promise.all([identification_result, speech_recognition_result]).then(
+            ([identification_result, speech_recognition_result]) => {
+                if (
+                    identification_result == "True" &&
+                    speech_recognition_result == "True"
+                ) {
+                    console.log("Identification successful");
+                    console.log("Speech recognition successful");
+                    // create jwt token and assign
+                    var token = jwt.sign({ _id: user._id }, config.token_key);
 
-                return response.responseToken(
-                    res,
-                    response.status_ok,
-                    response.code_ok,
-                    null,
-                    "success",
-                    null,
-                    token
-                );
-            } else {
-                return response.response(
-                    res,
-                    response.status_fail,
-                    response.code_failed,
-                    "speech verification failed",
-                    null,
-                    null
-                );
+                    return response.responseToken(
+                        res,
+                        response.status_ok,
+                        response.code_ok,
+                        null,
+                        "success",
+                        null,
+                        token
+                    );
+                } else if (
+                    identification_result == "True" &&
+                    speech_recognition_result == "False"
+                ) {
+                    console.log("Identification passed");
+                    console.log("Speech verification failed");
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "You did not read the text properly. Please try again...",
+                        null,
+                        null
+                    );
+                } else if (
+                    identification_result == "False" &&
+                    speech_recognition_result == "True"
+                ) {
+                    console.log("Identification failed");
+                    console.log("Speech verification passed");
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        `You are not ${data.userName}.`,
+                        null,
+                        null
+                    );
+                } else {
+                    console.log("Speech verification failed");
+                    console.log("Identification failed");
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        `You are not ${data.userName}`,
+                        null,
+                        null
+                    );
+                }
             }
-        } else {
-            console.log("Verification failed");
-            return response.response(
-                res,
-                response.status_fail,
-                response.code_failed,
-                "You are an imposter",
-                null,
-                null
-            );
-        }
+        );
     });
     src.on("error", function (err) {
         res.json("Something went wrong!");

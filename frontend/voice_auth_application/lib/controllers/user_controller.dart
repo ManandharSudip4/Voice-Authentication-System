@@ -53,6 +53,7 @@ Future register(String userName, String filename) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('auth-token', res.headers['auth-token'] ?? "");
   }
+  return response;
 }
 
 Future<ResponseUsers> login(

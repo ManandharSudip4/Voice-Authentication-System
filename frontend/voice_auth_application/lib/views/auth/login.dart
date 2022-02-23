@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
-import 'package:voice_auth_app/controllers/quote_controller.dart' as quote_controller;
+import 'package:voice_auth_app/controllers/user_controller.dart'
+    as user_controller;
+import 'package:voice_auth_app/controllers/quote_controller.dart'
+    as quote_controller;
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
 import 'package:voice_auth_app/models/response_user.dart';
@@ -19,7 +21,6 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  
   String? error;
   bool isRecording = false;
   Recorder recorder = Recorder();
@@ -33,7 +34,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: SafeArea(
@@ -43,44 +44,39 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-
-  Widget login(){
+  Widget login() {
     return Stack(
       children: <Widget>[
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children:<Widget> [
+          children: <Widget>[
             SizedBox(
-              height: 100,
-              child: Visibility(
-                visible: isRecording,
-                child: MusicVisualizer()
-              )
+                height: 100,
+                child:
+                    Visibility(visible: isRecording, child: MusicVisualizer())),
+            const SizedBox(
+              height: 20,
             ),
-            const SizedBox(height: 20,),
             Text(
-              (error != null) ? '$error': '',
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 20
-              ),
+              (error != null) ? '$error' : '',
+              style: const TextStyle(color: Colors.red, fontSize: 20),
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: FutureBuilder<String>(
                 future: quote_controller.getRandomQuote(),
-                builder: (context, snapshot){
-                  if(snapshot.hasData){
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
                     gotQuote ? null : sentence = snapshot.data ?? "";
                     gotQuote = true;
                     return Center(
                       child: Text(
                         sentence,
                         style: const TextStyle(
-                          fontSize: 20,
-                          color: Color(0xffffffff)
-                        ),
+                            fontSize: 20, color: Color(0xffffffff)),
                         textAlign: TextAlign.center,
                       ),
                     );
@@ -102,80 +98,76 @@ class _LoginViewState extends State<LoginView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: elevatedButtonColor,
-                      minimumSize: const Size(40, 45),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
-                    ),
-                    onPressed: (){
-                      Navigator.pop(
-                        context,
-                      );
-                    }, 
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 25,
-                    )
-                  ),
+                      style: ElevatedButton.styleFrom(
+                          primary: elevatedButtonColor,
+                          minimumSize: const Size(40, 45),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25))),
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 25,
+                      )),
                   Visibility(
                     visible: doneRecording,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: elevatedButtonColor,
-                        minimumSize: const Size(40, 45),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                      ),
-                      onPressed: () async{
-                        setState(() {
-                          postRequest = true;
-                        });
-                        ResponseUsers res = await user_controller.login(widget.uname, widget.uname, sentence);
-                        if (res.status == "OK"){
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const NotesView()),
-                            (route) => false
-                          );
-                        }else{
+                        style: ElevatedButton.styleFrom(
+                            primary: elevatedButtonColor,
+                            minimumSize: const Size(40, 45),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed: () async {
                           setState(() {
-                            error = res.error;
-                            postRequest = false;
-                            doneRecording = false;
-                            gotQuote = false;
+                            postRequest = true;
                           });
-                        }
-                      }, 
-                      child: const Text("Done")
-                    ),
+                          ResponseUsers res = await user_controller.login(
+                              widget.uname, widget.uname, sentence);
+                          if (res.status == "OK") {
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const NotesView()),
+                                (route) => false);
+                          } else {
+                            setState(() {
+                              error = res.error;
+                              postRequest = false;
+                              doneRecording = false;
+                              gotQuote = false;
+                            });
+                          }
+                        },
+                        child: const Text("Done")),
                   ),
                 ],
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: elevatedButtonColor,
-                  minimumSize: const Size(double.infinity, 45)
-                ),
-                onPressed: () async{
-                  if (!isRecording){
-                    await recorder.init(widget.uname !+ ".wav");
-                    await recorder.startRecord();
-                  }else{
-                    await recorder.stopRecord();
-                  }
-                  setState(() {
-                    error = null;
-                    isRecording = !isRecording;
-                    doneRecording = false;
-                    if (!isRecording) doneRecording = true;
-                  });
-                }, 
-                child:  Text(isRecording ?'Stop speaking' :  'Start speaking')
-              )
+                  style: ElevatedButton.styleFrom(
+                      primary: elevatedButtonColor,
+                      minimumSize: const Size(double.infinity, 45)),
+                  onPressed: () async {
+                    if (!isRecording) {
+                      await recorder.init(widget.uname! + ".wav");
+                      await recorder.startRecord();
+                    } else {
+                      await recorder.stopRecord();
+                    }
+                    setState(() {
+                      error = null;
+                      isRecording = !isRecording;
+                      doneRecording = false;
+                      if (!isRecording) doneRecording = true;
+                    });
+                  },
+                  child: Text(isRecording ? 'Stop speaking' : 'Start speaking'))
             ],
           ),
         )
       ],
     );
   }
-
 }
