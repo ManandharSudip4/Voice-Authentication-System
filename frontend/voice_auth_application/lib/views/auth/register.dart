@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:voice_auth_app/controllers/user_controller.dart' as user_controller;
+import 'package:voice_auth_app/controllers/user_controller.dart'
+    as user_controller;
 import 'package:voice_auth_app/imports/ev.dart';
 import 'package:voice_auth_app/imports/loading.dart';
 import 'package:voice_auth_app/models/user.dart';
@@ -50,8 +51,8 @@ class RegisrationView extends StatefulWidget {
 }
 
 class _RegisrationViewState extends State<RegisrationView> {
-  final GlobalKey<FormState> _formKey =  GlobalKey<FormState>();
-  
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   String uname = "";
   String error = "";
   bool isRecording = false;
@@ -65,7 +66,7 @@ class _RegisrationViewState extends State<RegisrationView> {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: SafeArea(
@@ -84,7 +85,7 @@ class _RegisrationViewState extends State<RegisrationView> {
     );
   }
 
-  Widget register1(PageController pageController){
+  Widget register1(PageController pageController) {
     return Stack(
       children: <Widget>[
         backgroundImage(),
@@ -93,28 +94,31 @@ class _RegisrationViewState extends State<RegisrationView> {
     );
   }
 
-  Widget register2(PageController pageController){
+  Widget register2(PageController pageController) {
     return Stack(
       children: <Widget>[
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children:<Widget> [
+          children: <Widget>[
             SizedBox(
-              height: 100,
-              child: Visibility(
-                visible: isRecording,
-                child: MusicVisualizer()
-              )
+                height: 100,
+                child:
+                    Visibility(visible: isRecording, child: MusicVisualizer())),
+            const SizedBox(
+              height: 20,
             ),
-            const SizedBox(height: 20,),
+            Text(
+              error,
+              style: const TextStyle(color: Colors.red, fontSize: 20),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
               child: Text(
                 registerSentence,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Color(0xffffffff)
-                ),
+                style: const TextStyle(fontSize: 20, color: Color(0xffffffff)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -130,64 +134,73 @@ class _RegisrationViewState extends State<RegisrationView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: elevatedButtonColor,
-                      minimumSize: const Size(40, 45),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
-                    ),
-                    
-                    onPressed: (){
-                      pageController.animateToPage(0, duration: const Duration( milliseconds: 250), curve: Curves.easeInOutCubic,);
-                    }, 
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 25,
-                    )
-                  ),
+                      style: ElevatedButton.styleFrom(
+                          primary: elevatedButtonColor,
+                          minimumSize: const Size(40, 45),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25))),
+                      onPressed: () {
+                        pageController.animateToPage(
+                          0,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOutCubic,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 25,
+                      )),
                   Visibility(
                     visible: doneRecording,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: elevatedButtonColor,
-                        minimumSize: const Size(40, 45),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                      ),
-                      onPressed: () async{
-                        setState(() {
-                          postRequest = true;
-                        });
-                        await user_controller.register(uname, uname);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotesView()),
-                          (route) => false
-                        );
-                      }, 
-                      child: const Text("Done")
-                    ),
+                        style: ElevatedButton.styleFrom(
+                            primary: elevatedButtonColor,
+                            minimumSize: const Size(40, 45),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed: () async {
+                          setState(() {
+                            postRequest = true;
+                          });
+
+                          ResponseUsers res =
+                              await user_controller.register(uname, uname);
+                          if (res.status == "OK") {
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const NotesView()),
+                                (route) => false);
+                          } else {
+                            setState(() {
+                              error = res.error.toString();
+                              postRequest = false;
+                              doneRecording = false;
+                            });
+                          }
+                        },
+                        child: const Text("Done")),
                   ),
                 ],
               ),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: elevatedButtonColor,
-                  minimumSize: const Size(double.infinity, 45)
-                ),
-                onPressed: () async{
-                  if (!isRecording){
-                    await recorder.init(uname + ".wav");
-                    await recorder.startRecord();
-                  }else{
-                    await recorder.stopRecord();
-                  }
-                  setState(() {
-                    isRecording = !isRecording;
-                    doneRecording = false;
-                    if (!isRecording) doneRecording = true;
-                  });
-                }, 
-                child:  Text(isRecording ?'Stop speaking' :  'Start speaking')
-              )
+                  style: ElevatedButton.styleFrom(
+                      primary: elevatedButtonColor,
+                      minimumSize: const Size(double.infinity, 45)),
+                  onPressed: () async {
+                    if (!isRecording) {
+                      await recorder.init(uname + ".wav");
+                      await recorder.startRecord();
+                    } else {
+                      await recorder.stopRecord();
+                    }
+                    setState(() {
+                      isRecording = !isRecording;
+                      doneRecording = false;
+                      if (!isRecording) doneRecording = true;
+                    });
+                  },
+                  child: Text(isRecording ? 'Stop speaking' : 'Start speaking'))
             ],
           ),
         )
@@ -195,71 +208,81 @@ class _RegisrationViewState extends State<RegisrationView> {
     );
   }
 
-  Widget userNameForm(PageController pageController){
+  Widget userNameForm(PageController pageController) {
     return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 0, 30, 60),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            TextFormField(
-              initialValue: uname,
-              decoration: inputDecoration.copyWith(labelText: 'User Name'),
-              validator: (val) {
-                if (val == null || val.isEmpty){
-                  return 'Please enter User Name';
-                }
-                if (val.length < 5){
-                  return 'User Name must be atleast 5 charecters';
-                }
-                return null;
-              },
-              onChanged: (val) {
-                setState(() {
-                  uname = val;
-                });
-              },
-            ),
-            const SizedBox(height: 5),
-            Text(error, style: const TextStyle(color: Colors.red),),
-            const SizedBox(height: 40,),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: elevatedButtonColor,
-                minimumSize: const Size(double.infinity, 45)
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(30, 0, 30, 60),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              TextFormField(
+                initialValue: uname,
+                decoration: inputDecoration.copyWith(labelText: 'User Name'),
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Please enter User Name';
+                  }
+                  if (val.length < 5) {
+                    return 'User Name must be atleast 5 charecters';
+                  }
+                  return null;
+                },
+                onChanged: (val) {
+                  setState(() {
+                    uname = val;
+                  });
+                },
               ),
-              onPressed:  () async {
-                if(_formKey.currentState!.validate()){
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  ResponseUsers response = await user_controller.getAllUsers();
-                  List<User>? users = response.data;
-                  bool isTaken = false;
-                  for (var user in users!) { 
-                    if (user.userName ==  uname){
-                      setState(() {
-                        error = "User Name is already taken";
-                      });
-                      isTaken = true;
-                      break;
+              const SizedBox(height: 5),
+              Text(
+                error,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      primary: elevatedButtonColor,
+                      minimumSize: const Size(double.infinity, 45)),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      ResponseUsers response =
+                          await user_controller.getAllUsers();
+                      List<User>? users = response.data;
+                      bool isTaken = false;
+                      for (var user in users!) {
+                        if (user.userName == uname) {
+                          setState(() {
+                            error = "User Name is already taken";
+                          });
+                          isTaken = true;
+                          break;
+                        }
+                      }
+                      if (!isTaken) {
+                        pageController.animateToPage(
+                          1,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOutCubic,
+                        );
+                      }
                     }
-                  }
-                  if (!isTaken){
-                    pageController.animateToPage(1, duration: const Duration( milliseconds: 250), curve: Curves.easeInOutCubic,);
-                  }
-                }
-              }, 
-              child: const Text('Next')
-            ),
-          ],
-        ),
-      )
-    );
+                  },
+                  child: const Text('Next')),
+            ],
+          ),
+        ));
   }
-  Widget backgroundImage(){
+
+  Widget backgroundImage() {
     return Column(
-      children: <Widget> [
-        const SizedBox(height: 30,),
+      children: <Widget>[
+        const SizedBox(
+          height: 30,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -275,11 +298,12 @@ class _RegisrationViewState extends State<RegisrationView> {
   }
 }
 
-
-Widget backgroundImage(){
+Widget backgroundImage() {
   return Column(
-    children: <Widget> [
-      const SizedBox(height: 30,),
+    children: <Widget>[
+      const SizedBox(
+        height: 30,
+      ),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -293,4 +317,3 @@ Widget backgroundImage(){
     ],
   );
 }
-
