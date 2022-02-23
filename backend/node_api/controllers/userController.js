@@ -34,7 +34,9 @@ const userRegisternew = async (req, res) => {
             // Speech recognition code goes here
             console.log("Verifying speech");
             const speech_recognition_result = await recognizeSpeech(
-                data.userName
+                data.userName,
+                data.sentence,
+                "register"
             );
             console.log(speech_recognition_result);
             if (speech_recognition_result == "True") {
@@ -145,26 +147,42 @@ const userLoginnew = async (req, res) => {
                 res,
                 response.status_fail,
                 response.code_failed,
-                "UserName not found",
+                "username not found",
                 null,
                 null
             );
 
         const result = await identify(data.userName);
         if (result == "True") {
-            console.log("Verification successful");
-            // create jwt token and assign
-            var token = jwt.sign({ _id: user._id }, config.token_key);
-
-            return response.responseToken(
-                res,
-                response.status_ok,
-                response.code_ok,
-                null,
-                "success",
-                null,
-                token
+            const speech_recognition_result = await recognizeSpeech(
+                data.userName,
+                data.sentence,
+                "login"
             );
+            if (speech_recognition_result == "True") {
+                console.log("Verification successful");
+                // create jwt token and assign
+                var token = jwt.sign({ _id: user._id }, config.token_key);
+
+                return response.responseToken(
+                    res,
+                    response.status_ok,
+                    response.code_ok,
+                    null,
+                    "success",
+                    null,
+                    token
+                );
+            } else {
+                return response.response(
+                    res,
+                    response.status_fail,
+                    response.code_failed,
+                    "speech verification failed",
+                    null,
+                    null
+                );
+            }
         } else {
             console.log("Verification failed");
             return response.response(
@@ -437,20 +455,17 @@ const getUsers = async (req, res) => {
         });
 };
 
-const recognizeSpeech = async (username) => {
-    /*
-            This function needs to be properly implemented.
-            For now this function only returns 'True'
-    */
-
+const recognizeSpeech = async (username, sentence, speechType) => {
+    console.log(sentence);
     console.log("Recognizing Speech");
     const pythonProcessforSR = await spawn("python", [
         "../speechrecognition.py",
         username,
+        sentence,
+        speechType,
     ]);
-    const data = pythonProcessforSR.toString().split('\n').pop();
-    console.log(data)
-
+    const data = pythonProcessforSR.toString().split("\n").pop();
+    console.log(data);
     return data;
 };
 
