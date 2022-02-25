@@ -40,7 +40,7 @@ def identify(audioFile):
     score = np.array(model.score(mfcc))
     print(f'Obtained score: {score}')
 
-    if score >= -50:
+    if score >= -51:
         print(True, end='')
     else:
         print(False, end='')

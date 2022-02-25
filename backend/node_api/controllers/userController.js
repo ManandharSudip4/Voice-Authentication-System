@@ -27,6 +27,7 @@ const userRegisternew = async (req, res) => {
     src.on("end", async () => {
         fs.unlinkSync(req.file.path);
         console.log("Making GMM for the new user");
+
         make_gmm_result = makeGmm(data.userName);
         speech_recognition_result = recognizeSpeech(
             data.userName,
@@ -89,6 +90,21 @@ const userRegisternew = async (req, res) => {
                         response.status_fail,
                         response.code_failed,
                         "Registration failed... Please read the passage carefully.",
+                        null,
+                        null
+                    );
+                } else if (
+                    make_gmm_result == "error" ||
+                    speech_recognition_result == "error"
+                ) {
+                    err = "Something went wrong";
+                    console.log("Error running python script");
+                    console.log(err);
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "Registration failed... Internal server error.",
                         null,
                         null
                     );
@@ -225,7 +241,21 @@ const userLoginnew = async (req, res) => {
                         null,
                         null
                     );
-                } else {
+                } else if (
+                    identification_result == "error" ||
+                    speech_recognition_result == "error"
+                ) {
+                    console.log("Something went wrong");
+                    console.log("Error running python script");
+                    return response.response(
+                        res,
+                        response.status_fail,
+                        response.code_failed,
+                        "Login failed... Internal server error.",
+                        null,
+                        null
+                    );
+                }else {
                     console.log("Speech verification failed");
                     console.log("Identification failed");
                     return response.response(
@@ -503,32 +533,50 @@ const getUsers = async (req, res) => {
 const recognizeSpeech = async (username, sentence, speechType) => {
     console.log(sentence);
     console.log("Recognizing Speech");
-    const pythonProcessforSR = await spawn("python", [
-        "../speechrecognition.py",
-        username,
-        sentence,
-        speechType,
-    ]);
-    const data = pythonProcessforSR.toString().split("\n").pop();
-    console.log(data);
-    return data;
+    try {
+        const pythonProcessforSR = await spawn("python", [
+            "../speechrecognition.py",
+            username,
+            sentence,
+            speechType,
+        ]);
+        const data = pythonProcessforSR.toString().split("\n").pop();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.log("Something went wrong.");
+        return "error";
+    }
 };
 
 const makeGmm = async (username) => {
     console.log("making gmm");
-    data = await spawn("python", ["../make_gmm.py", username]);
-    data = data.toString();
-    console.log(data);
-    const result = data.split("\n").pop();
-    console.log("result is ", result);
-    return result;
+    try {
+        data = await spawn("python", ["../make_gmm.py", username]);
+        data = data.toString();
+        console.log(data);
+        const result = data.split("\n").pop();
+        console.log("result is ", result);
+        return result;
+    } catch (error) {
+        console.log("Something went wrong.");
+        return "error";
+    }
 };
 
 const identify = async (username) => {
-    const pythonProcess = await spawn("python", ["../identify.py", username]);
-    console.log(pythonProcess.toString());
-    const pythonData = pythonProcess.toString().split("\n").pop();
-    return pythonData;
+    try {
+        const pythonProcess = await spawn("python", [
+            "../identify.py",
+            username,
+        ]);
+        console.log(pythonProcess.toString());
+        const pythonData = pythonProcess.toString().split("\n").pop();
+        return pythonData;
+    } catch (error) {
+        console.log("Something went wrong.");
+        return "error";
+    }
 };
 
 module.exports = {
