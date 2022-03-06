@@ -9,16 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "joi": "^17.6.0",
+    "@hapi/joi": "17.1.1",
     "await-spawn": "^4.0.2",
     "bcryptjs": "^2.4.3",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "express": "^4.17.3",
+    "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.3",
     "multer": "^1.4.4",
-    "spawn-npm-install": "^1.2.0",
-    "@hapi/joi":"17.1.1"
+    "spawn-npm-install": "^1.2.0"
   }
 }
