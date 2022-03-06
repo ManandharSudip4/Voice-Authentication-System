@@ -11,7 +11,7 @@ def extractMfcc(audioPath, file=False):
     sr = 22050              # Sampling Rate (Number of samples in 1 sec)
     n_mfcc = 13             # Number of coefficients to extract
     n_mels = 40             # Number of mel bins
-    hop_length = 160        # Number of samples to shift window by
+    hop_length = 200 #160        # Number of samples to shift window by
     n_fft = 512             # Number of samples in a window
 
     flag = 0
