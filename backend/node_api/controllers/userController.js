@@ -36,6 +36,12 @@ const userRegisternew = async (req, res) => {
         );
         Promise.all([make_gmm_result, speech_recognition_result]).then(
             ([make_gmm_result, speech_recognition_result]) => {
+                fs.unlink(audioFile, (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log(`${audioFile} deleted.`);
+                });
                 if (
                     make_gmm_result == "True" &&
                     speech_recognition_result == "True"
@@ -85,6 +91,12 @@ const userRegisternew = async (req, res) => {
                     err = "Failed verifying speech for the new user";
                     console.log("Something went wrong");
                     console.log(err);
+                    fs.unlink(`../GMMs/${data.userName}.gmm`, (err) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        console.log(`../GMMs/${data.userName}.gmm deleted.`);
+                    });
                     return response.response(
                         res,
                         response.status_fail,
@@ -195,6 +207,13 @@ const userLoginnew = async (req, res) => {
         );
         Promise.all([identification_result, speech_recognition_result]).then(
             ([identification_result, speech_recognition_result]) => {
+                fs.unlink(audioFile, (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log(`${audioFile} deleted.`);
+                });
+
                 if (
                     identification_result == "True" &&
                     speech_recognition_result == "True"
@@ -255,7 +274,7 @@ const userLoginnew = async (req, res) => {
                         null,
                         null
                     );
-                }else {
+                } else {
                     console.log("Speech verification failed");
                     console.log("Identification failed");
                     return response.response(
@@ -544,7 +563,8 @@ const recognizeSpeech = async (username, sentence, speechType) => {
         console.log(data);
         return data;
     } catch (error) {
-        console.log("Something went wrong.");
+        console.log("Something went wrong while recognizing speech.");
+        console.log("Exception spawning the python process.");
         return "error";
     }
 };
@@ -559,7 +579,8 @@ const makeGmm = async (username) => {
         console.log("result is ", result);
         return result;
     } catch (error) {
-        console.log("Something went wrong.");
+        console.log("Something went wrong while making GMM.");
+        console.log("Exception spawning the python process.");
         return "error";
     }
 };
@@ -574,7 +595,8 @@ const identify = async (username) => {
         const pythonData = pythonProcess.toString().split("\n").pop();
         return pythonData;
     } catch (error) {
-        console.log("Something went wrong.");
+        console.log("Something went wrong while identifying.");
+        console.log("Exception spawning the python process.");
         return "error";
     }
 };

@@ -26,18 +26,26 @@ def makeGmm(audioPath, speakerName):
     # gmm_path = "./GMMs/"
     gmm_path = "../GMMs/"
     model_name = speakerName + '.gmm'
-    mfcc = extractMfcc(audioPath, file=True)
+    mfcc = extractMfcc(audioPath)
+    if(mfcc == 'error'):
+        return False
     gmm = GaussianMixture(
         n_components=16, covariance_type='diag', max_iter=500, n_init=3, verbose=1, reg_covar=0.1)      # fitting error solved
     gmm.fit(mfcc)
     pickle.dump(gmm, open(gmm_path + model_name, 'wb'))
+    return True
 
 
 print(f'Making GMM for {speakerName}...')
 try:
-    makeGmm(audioPath, speakerName)
-    print('Done')
-    print(True, end='')
+    result = makeGmm(audioPath, speakerName)
+    if(result):
+        print('Done')
+        print(True, end='')
+    else:
+        print('Error occurred')
+        print(False, end='')
 except Exception as e:
     print(e)
+    print('Exception while running make_gmm.py')
     print(False, end='')

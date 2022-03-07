@@ -7,7 +7,7 @@ import sys
 claimedUser = sys.argv[1]
 
 
-def identify(audioFile, threshold = 51):
+def identify(audioFile, threshold = -51):
 
     model_path = "../GMMs/"
 
@@ -27,7 +27,7 @@ def identify(audioFile, threshold = 51):
     # model = pickle.load(open(gmm_file, 'rb'))
 
     # features of the file to be predicted
-    mfcc = extractMfcc(audioFile, file=True)
+    mfcc = extractMfcc(audioFile)
 
     score_of_individual_comparision = np.zeros(len(models))
 
@@ -60,4 +60,9 @@ def identify(audioFile, threshold = 51):
 
 # audioFile = '../../audioFiles/dev-clean/LibriSpeech/dev-clean/84/121123/84-121123-0000.flac'
 audioFile = f'./public/assets/uploads/login/{claimedUser}.wav'
-identify(audioFile, -51)
+try:
+    identify(audioFile, -51)
+except Exception as e:
+    print(e)
+    print('Exception while running identify.py')
+    print("error", end='')

@@ -47,3 +47,5 @@ try:
         print("False", end='')
 except Exception as e:
     print(e)
+    print('Exception while running speechrecognition.py')
+    print('error', end='')
