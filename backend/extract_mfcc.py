@@ -60,6 +60,6 @@ def extractMfcc(audioPath):
 
     #             except Exception as e:
     #                 print(e)
-    return mfcc
+    # return mfcc
 
 # extractMfcc(audioPath)
