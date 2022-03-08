@@ -4,23 +4,25 @@ import speech_recognition as sr
 import os
 import sys
 
-speechType = sys.argv[3]
-given = sys.argv[2]
-givenFilter = given.translate(
-    str.maketrans('', '', string.punctuation)).lower()
-# cwd = os.getcwd()
-# print(cwd)
-# speakerName = "sandwich.wav"
+# Assign argument values to variables
 speakerName = sys.argv[1] + ".wav"
-# audio_path = "node_api/public/assets/uploads/register/"
+given = sys.argv[2]
+speechType = sys.argv[3]
+
+# Set audio_path to register or login directory
 if(speechType == 'register'):
     audio_path = "./public/assets/uploads/register/"
 else:
     audio_path = "./public/assets/uploads/login/"
+# Complete path to the audio file
 audio_file = os.path.join(audio_path, speakerName)
-# print(audio_file)
+
+# Filter out punctuation marks and convert the string to lowercase
+givenFilter = given.translate(
+    str.maketrans('', '', string.punctuation)).lower()
 
 
+# Function to extract speech from given audio and match it to required speech
 def speechRecog(audio_file):
     # use audio as a source
     r = sr.Recognizer()
@@ -29,19 +31,21 @@ def speechRecog(audio_file):
 
     # recognize speech using google speech recognition
     try:
-        # print("Required Speech: " + r.recognize_google(audio))
         return r.recognize_google(audio)
     except sr.UnknownValueError:
-        return "Cannot understand the audio"
+        print("Cannot understand the audio")
+        print("False", end='')
+        exit(0)
 
-
-gotit = speechRecog(audio_file)
-# print(gotit)
 
 try:
+    # Speech from the audio
+    gotit = speechRecog(audio_file)
+    # Calculate closeness with the required speech
     percentage = (lev(givenFilter, gotit) / len(givenFilter)) * 100
+    # 20% room for error
+    # Accept the speech if error is less than 20%
     if percentage <= 20:
-        # print(int(percentage))
         print("True", end='')
     else:
         print("False", end='')
