@@ -2,37 +2,45 @@ import pickle
 from sklearn.mixture import GaussianMixture
 from extract_mfcc import extractMfcc
 import sys
-# import numpy as np
 
-# Documentation at: https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html
-# Description of the functional parameters
-# these functional parameters needs to be tuned.
 
-# gmm = GMM(n_components=16, n_iter=200, covariance_type='diag', n_init=3)
-
-# audioPath = '../../audioFiles/dev-clean/LibriSpeech/dev-clean/174'
-# speakerName = '174'
-
+# Assign argument values to variables
 speakerName = sys.argv[1]
-# print(speakerName)
-# audioPath = 'node_api/public/assets/uploads/register/' + speakerName + '.wav'
 audioPath = './public/assets/uploads/register/' + speakerName + '.wav'
-# print("py file triggered")
-# sys.stdout.flush()
+
+# EM Algorithm---->Expectation Maximiation Algorithm
 
 
+# Function to make GMM using the given audioPath and save it with name speakerName.gmm
 def makeGmm(audioPath, speakerName):
-    # print("test1")
-    # gmm_path = "./GMMs/"
+    # Parameters for GMM
+    n_components = 16               # The number of mixture components
+    # 'diag'-->each component has its own diagonal covarianve matrix
+    covariance_type = 'diag'
+    max_iter = 500                  # The number of EM iterations to perform
+    n_init = 3                      # The number of initializations to perform
+    verbose = 1                     # Enable verbose output
+    # Non-negative regularization added to the diagonal of covariance
+    reg_covar = 0.1
+
+    # Path to save GMM files
     gmm_path = "../GMMs/"
+    # Name of the GMM file
     model_name = speakerName + '.gmm'
+
+    # Extract MFCC for the audioPath
     mfcc = extractMfcc(audioPath)
+    # Check if error occurred during MFCC extraction; if 'yes', return without creating GMM
     if(mfcc == 'error'):
         return False
-    gmm = GaussianMixture(
-        n_components=16, covariance_type='diag', max_iter=500, n_init=3, verbose=1, reg_covar=0.1)      # fitting error solved
+
+    # Create GMM by using the extracted MFCC
+    gmm = GaussianMixture(n_components=n_components, covariance_type=covariance_type, max_iter=max_iter,
+                          n_init=n_init, verbose=verbose, reg_covar=reg_covar)
     gmm.fit(mfcc)
+    # Save the created GMM in binary format
     pickle.dump(gmm, open(gmm_path + model_name, 'wb'))
+    # Return True if GMM creation is successful
     return True
 
 

@@ -4,62 +4,49 @@ import numpy as np
 from extract_mfcc import extractMfcc
 import sys
 
+# Assign argument values to variables
 claimedUser = sys.argv[1]
+audioFile = f'./public/assets/uploads/login/{claimedUser}.wav'
 
 
+# Function to predict the user based on the given voice and calculate score
 def identify(audioFile, threshold = -51):
-
+    # Path to stored GMM Files
     model_path = "../GMMs/"
-
-    # list of gmm_files available
+    # List of gmm_files available
     gmm_files = [os.path.join(model_path, fname) for fname in
                  os.listdir(model_path) if fname.endswith('.gmm')]
-    # gmm_file = model_path + claimedUser + '.gmm'
-
-    # name of the model of speaker = same as the name of speaker
+    # List of speakers whose GMMs are available
     speakers = [fname.split("/")[-1].split(".gmm")[0] for fname in gmm_files]
-    login_speaker = audioFile.split("/")[-1].split(".")[0]
-    print(f'audio_file: {audioFile}')
-    print(f'login_speaker: {login_speaker}')
-    # list of existing models
-    # rb stands for  reading the binary file
+
+    print(f'Audio file: {audioFile}')
+    print(f'Claimed User: {claimedUser}')
+    # Read the binary files of the available users.
     models = [pickle.load(open(gmm_file, 'rb')) for gmm_file in gmm_files]
-    # model = pickle.load(open(gmm_file, 'rb'))
-
-    # features of the file to be predicted
+    # MFCC features extracted for the given audioFile
     mfcc = extractMfcc(audioFile)
-
     score_of_individual_comparision = np.zeros(len(models))
-
+    # Loop through the available models and score each one
     for i in range(len(models)):
-        gmm = models[i]  # checking with each model one by one
+        gmm = models[i]
         scores = np.array(gmm.score(mfcc))
         score_of_individual_comparision[i] = scores.sum()
 
+    # Winner gets the maximum score and the user will be selected
     winner = np.argmax(score_of_individual_comparision)
-
     likelihood = np.max(score_of_individual_comparision)
     print(f'Predicted speaker: {speakers[winner]}')
     print(f'Obtained score: {likelihood}')
     print(f'Threshold: {threshold}')
     
-    if (likelihood >= threshold) and (speakers[winner] == login_speaker):
+    # check if the obtained score crossed the threshold and whether the claimed user is same as predicted user.
+    if (likelihood >= threshold) and (speakers[winner] == claimedUser):
         print('Real user')
         print(True, end='')
     else:
         print('Imposter')
         print(False, end='')
-    # score = np.array(model.score(mfcc))
-    # print(f'Obtained score: {score}')
 
-    # if score >= -51:
-    #    print(True, end='')
-    # else:
-    #    print(False, end='')
-
-
-# audioFile = '../../audioFiles/dev-clean/LibriSpeech/dev-clean/84/121123/84-121123-0000.flac'
-audioFile = f'./public/assets/uploads/login/{claimedUser}.wav'
 try:
     identify(audioFile, -51)
 except Exception as e:
