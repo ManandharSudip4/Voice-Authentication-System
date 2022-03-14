@@ -41,7 +41,6 @@ def plot_results(X, Y_, means, covariances, index, title, r=0, l=1):
     # plt.show()
     plt.close("all")
 
-
 if __name__ == "__main__":
 
     # Number of samples per component
