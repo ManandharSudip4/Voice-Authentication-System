@@ -129,6 +129,8 @@ dmypy.json
 
 ai/audio/*
 ai/GMMs/*
+ai/results/gmm_plot/*
+ai/mfcctest
 backend/node_api/public/*
 backend/node_api/config.json
 frontend/voice_auth_application/lib/config.dart

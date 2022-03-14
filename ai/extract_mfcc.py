@@ -1,9 +1,11 @@
+from curses import echo
 import librosa
 import numpy as np
 import os
 import subprocess
 # audioPath = '../../audioFiles/dev-clean/LibriSpeech/dev-clean/84'
-
+import sys
+import json
 
 def extractMfcc(audioPath, file=False):
     fmin = 100              # Minimum Frequency
@@ -60,3 +62,18 @@ def extractMfcc(audioPath, file=False):
     return mfcc
 
 # extractMfcc(audioPath)
+if __name__ == "__main__":
+    speaker = sys.argv[1]
+    isfile = sys.argv[2]
+    audio_path = f'./audio/train/{speaker}'
+    
+    if isfile == "1":
+        mfcc = extractMfcc(f'{audio_path}.wav' , True)
+    else:
+        mfcc = extractMfcc(audio_path, False)
+
+    # mfcc = json.JSONEncoder(indent=4).encode({'mfcc': mfcc})
+
+    np.savetxt('./mfcctest' ,mfcc ,delimiter=' ',newline='      ')
+    # with open('./mfcctest', 'w') as f:
+    #     f.write(mfcc)
